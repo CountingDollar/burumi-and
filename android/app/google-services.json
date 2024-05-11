@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "190306010228",
+    "project_id": "burumii-flutter-123",
+    "storage_bucket": "burumii-flutter-123.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:190306010228:android:b9dbb3bd1041290a473d21",
+        "android_client_info": {
+          "package_name": "com.example.team_burumi"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBG9f1tRB_8mbYBx_pD_wPiFZVkxoSeWpk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
