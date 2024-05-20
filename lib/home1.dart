@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:team_burumi/home2.dart';
+import 'package:team_burumi/home.dart';
 
 class home1 extends StatelessWidget {
   const home1 ({super.key});
@@ -13,7 +13,7 @@ class home1 extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => home2()),
+                  MaterialPageRoute(builder: (context) => Home()),
                 );
               },
 

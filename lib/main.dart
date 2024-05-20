@@ -6,6 +6,9 @@ import 'package:team_burumi/signup.dart';
 import 'package:team_burumi/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:team_burumi/activity.dart';
+import 'package:team_burumi/home.dart';
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -39,6 +42,8 @@ class MyApp extends StatelessWidget {
         '/login': (context) =>  LoginPage(),
         '/signup': (context) =>  SignupPage(),
         '/alarm': (context) =>  AlarmPage(),
+        '/activity': (context) =>  Activity(),
+        '/home': (context) =>  Home(),
       },
       ),
     );
