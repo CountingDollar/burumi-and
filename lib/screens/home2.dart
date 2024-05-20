@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_naver_map/flutter_naver_map.dart';
+import 'package:team_burumi/providers/app_labels.dart';
+
 
 class Post {
   final String title;
@@ -73,12 +74,13 @@ class _Home2State extends State<home2> {
             children: [
               Text(
                 "카테고리",
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, ), // 텍스트의 크기 조절
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, ),
               ),
-              SizedBox(width: 10), // 텍스트와 버튼 사이의 간격 조절
+              SizedBox(width: 10),
+              // 카테고리 버튼들: _categories 리스트의 각 항목을 버튼으로 변환하여 표시합니다.
               ..._categories.map((category) {
                 return SizedBox(
-                  width: 82, // 버튼의 너비를 조절할 수 있습니다.
+                  width: 82,
                   child: _buildCategoryButton(category),
                 );
               }).toList(),
@@ -97,6 +99,7 @@ class _Home2State extends State<home2> {
     return ElevatedButton(
       onPressed: () {
         setState(() {
+          // 이미 선택된 카테고리를 다시 누르면 선택을 해제합니다.
           _selectedCategory = isSelected ? null : category;
         });
       },
@@ -149,25 +152,25 @@ class _Home2State extends State<home2> {
           icon: Container(
             child: Icon(Icons.home),
           ),
-          label: '홈',
+          label: AppLabels.home,
         ),
         BottomNavigationBarItem(
           icon: Container(
             child: Icon(Icons.text_snippet),
           ),
-          label: '내 활동 보기',
+          label: AppLabels.activity,
         ),
         BottomNavigationBarItem(
           icon: Container(
             child: Icon(Icons.chat_bubble_outline),
           ),
-          label: '채팅',
+          label: AppLabels.chat,
         ),
         BottomNavigationBarItem(
           icon: Container(
             child: Icon(Icons.person_outline),
           ),
-          label: '내정보',
+          label: AppLabels.info,
         ),
       ],
       onTap: (index) {
@@ -185,7 +188,7 @@ class _Home2State extends State<home2> {
             Navigator.pushNamed(context, '/chat');
             break;
           case 3:
-            // 내 정보 페이지로 이동
+            // 내 페이지로 이동
             Navigator.pushNamed(context, '/login');
             break;
         }

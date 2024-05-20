@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:team_burumi/providers/app_labels.dart';
 
 
 class profile extends StatelessWidget {
@@ -52,25 +52,25 @@ class profile extends StatelessWidget {
           icon: Container(
             child: Icon(Icons.home),
           ),
-          label: '홈',
+          label: AppLabels.home,
         ),
         BottomNavigationBarItem(
           icon: Container(
             child: Icon(Icons.text_snippet),
           ),
-          label: '내 활동 보기',
+          label: AppLabels.activity,
         ),
         BottomNavigationBarItem(
           icon: Container(
             child: Icon(Icons.chat_bubble_outline),
           ),
-          label: '채팅',
+          label: AppLabels.chat,
         ),
         BottomNavigationBarItem(
           icon: Container(
             child: Icon(Icons.person_outline),
           ),
-          label: '내정보',
+          label: AppLabels.info,
         ),
       ],
       onTap: (index) {
@@ -89,7 +89,7 @@ class profile extends StatelessWidget {
             break;
           case 3:
           // 내 정보 페이지로 이동
-            Navigator.pushNamed(context, '/profile');
+            Navigator.pushNamed(context, '/info');
             break;
         }
       },

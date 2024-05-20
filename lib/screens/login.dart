@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:team_burumi/services.dart';
+import 'package:team_burumi/service/services.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -108,6 +108,7 @@ class _LoginPageState extends State<LoginPage> {
         controller: _emailController,
         autofocus: false,
         validator: (val) {
+          //스테이트 객체만들기사용자가 알아들을수 있게
           if (val!.isEmpty) {
             return 'The input is empty.';
           } else if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')

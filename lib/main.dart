@@ -1,9 +1,9 @@
-import 'package:team_burumi/alarm.dart';
-import 'package:team_burumi/home1.dart';
-import 'package:team_burumi/home2.dart';
-import 'package:team_burumi/login.dart';
-import 'package:team_burumi/signup.dart';
-import 'package:team_burumi/profile.dart';
+import 'package:team_burumi/screens/alarm.dart';
+import 'package:team_burumi/screens/home1.dart';
+import 'package:team_burumi/screens/home2.dart';
+import 'package:team_burumi/screens/login.dart';
+import 'package:team_burumi/screens/signup.dart';
+import 'package:team_burumi/screens/info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -31,10 +31,9 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      initialRoute: '/',
+      initialRoute: '/home',
       routes: {
-        '/': (context) => home1(),
-        '/home2':(context)=>  home2(),
+        '/home':(context)=>  home2(),
         '/profile':(context)=> profile(),
         '/login': (context) =>  LoginPage(),
         '/signup': (context) =>  SignupPage(),

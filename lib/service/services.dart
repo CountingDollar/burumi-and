@@ -1,16 +1,16 @@
 import 'dart:convert';
 
 import 'package:http/http.dart'as http;
-import 'package:team_burumi/modelSign.dart';
+import 'package:team_burumi/models/modelSign.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-
+import 'package:team_burumi/providers/http_status_codes.dart';
 class Services {
   static const String url = "https://jsonplaceholder.typicode.com/users";
 
   static Future<List<User>> getInfo() async {
     try {
       final response = await http.get(Uri.parse(url));
-      if (response.statusCode == 200) {
+      if (response.statusCode ==HttpStatusCodes.ok ) {
         final List<User> user = userFromJson(response.body);
         return user;
       } else {
@@ -35,7 +35,7 @@ class Services {
       );
 
       // 응답 확인
-      if (response.statusCode == 200) {
+      if (response.statusCode == HttpStatusCodes.ok) {
         // 성공적으로 서버에 이메일을 전송한 경우
         print('Email sent successfully');
       } else {
