@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:team_burumi/providers/app_labels.dart';
+import 'package:team_burumi/src/providers/app_labels.dart';
 
 
 class profile extends StatelessWidget {
@@ -8,26 +8,7 @@ class profile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: Image.asset(
-          'image/logo.png',
-          width: 35,
-          height: 35,
-        ),
-        actions: [
-          IconButton(
-              onPressed: () {},
-              icon: Icon(Icons.notifications, color: Colors.black)),
-        ],
-        shape: Border(
-          bottom: BorderSide(
-            color: Colors.grey,
-            width: 1,
-          ),
-        ),
-      ),
       body: _body(context),
-      bottomNavigationBar: _bottomNavigationBar(context),
     );
   }
   Widget _body(BuildContext context) {
@@ -39,6 +20,7 @@ class profile extends StatelessWidget {
       ),
     );
   }
+
 
   Widget _bottomNavigationBar(BuildContext context,) {
     return BottomNavigationBar(
@@ -97,3 +79,4 @@ class profile extends StatelessWidget {
     );
   }
 }
+

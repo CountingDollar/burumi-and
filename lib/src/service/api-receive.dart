@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:http/http.dart'as http;
-import 'package:team_burumi/models/modelSign.dart';
+import 'package:team_burumi/src/models/modelSign.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:team_burumi/providers/http_status_codes.dart';
+import 'package:team_burumi/src/providers/http_status_codes.dart';
 class Services {
   static const String url = "https://jsonplaceholder.typicode.com/users";
 
