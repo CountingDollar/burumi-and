@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:team_burumi/src/service/api-receive.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
+
+
+import '../providers/Styles.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -15,11 +16,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _pwdController = TextEditingController();
   bool _isChecked = false;
-  //
-  // Future<void> sendEmailToServer(String email) async {
-  //   // 서버로 이메일 전송하는 로직
-  //   // 예: HTTP POST 요청 등
-  // }
+
 
   @override
   Widget build(BuildContext context) {
@@ -181,7 +178,7 @@ class _LoginPageState extends State<LoginPage> {
       },
       style: ElevatedButton.styleFrom(
           minimumSize: Size(200, 50), // 최소 너비와 높이 설정
-          backgroundColor: Colors.deepPurple),
+          backgroundColor: buttonBackgroundColor),
       child: Container(
         padding: const EdgeInsets.all(15),
         child: const Text(

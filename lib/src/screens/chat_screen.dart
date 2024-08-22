@@ -1,4 +1,4 @@
-import '../providers/constants.dart';
+import '../providers/Styles.dart';
 import 'package:flutter/material.dart';
 
 class ChatScreen extends StatefulWidget {

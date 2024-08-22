@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
-import 'package:team_burumi/src/models/modelalarm.dart';
-import 'package:team_burumi/src/providers/http_status_codes.dart';
+import 'package:team_burumi/src/models/NotificationModel.dart';
+import 'package:team_burumi/src/providers/StausCodes.dart';
 
 class AlarmPage extends StatefulWidget {
   @override
