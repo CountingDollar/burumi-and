@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-
+import 'package:team_burumi/src/service/LogInApi.dart';
 
 import '../providers/Styles.dart';
 
@@ -17,11 +17,17 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _pwdController = TextEditingController();
   bool _isChecked = false;
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pushNamed(context, '/home');
+          },
+        ),
+      ),
       body: SingleChildScrollView(
         child: Container(
           padding: const EdgeInsets.all(15),
@@ -36,11 +42,9 @@ class _LoginPageState extends State<LoginPage> {
                     width: 250,
                     height: 250,
                   ),
-                  SizedBox(width:260,
-                    child:emailInput()),
+                  SizedBox(width: 260, child: emailInput()),
                   const SizedBox(height: 15),
-              SizedBox(width:260,
-                child: passwordInput()),
+                  SizedBox(width: 260, child: passwordInput()),
                   SizedBox(
                     width: 250,
                     child: ListTile(
@@ -57,8 +61,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   const SizedBox(height: 4),
-              SizedBox(width:260,
-                child: loginButton()),
+                  SizedBox(width: 260, child: loginButton(context)),
                   const SizedBox(height: 15),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -102,27 +105,25 @@ class _LoginPageState extends State<LoginPage> {
 
   TextFormField emailInput() {
     return TextFormField(
-        controller: _emailController,
-        autofocus: false,
-        validator: (val) {
-          //스테이트 객체만들기사용자가 알아들을수 있게
-          if (val!.isEmpty) {
-            return 'The input is empty.';
-          } else if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-              .hasMatch(val)) {
-            return 'Please enter a valid email';
-          } else {
-            return null;
-          }
-        },
-        decoration: const InputDecoration(
-          border: OutlineInputBorder(),
-          hintText: '이메일',
-          labelStyle: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+      controller: _emailController,
+      autofocus: false,
+      validator: (val) {
+        if (val!.isEmpty) {
+          return 'The input is empty.';
+        } else if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(val)) {
+          return 'Please enter a valid email';
+        } else {
+          return null;
+        }
+      },
+      decoration: const InputDecoration(
+        border: OutlineInputBorder(),
+        hintText: '이메일',
+        labelStyle: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
         ),
+      ),
     );
   }
 
@@ -149,35 +150,31 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  ElevatedButton loginButton() {
+  ElevatedButton loginButton(BuildContext context) {
     return ElevatedButton(
       onPressed: () async {
-        // 이메일과 비밀번호 가져오기
         String email = _emailController.text;
         String password = _pwdController.text;
 
-        // API 서버로 전송
-        var response = await http.post(
-          Uri.parse("https://jsonplaceholder.typicode.com/users"),
-          body: {'email': email, 'passsword': password},
-        );
 
-        // 응답 확인
-        if (response.statusCode == 200) {
-          // 로그인 성공
-          // 여기에 로그인 성공 시 수행할 작업 추가
-          Navigator.pushNamed(context, '/home2');
-          print('Login successful');
+        final authService = ApiLogin();
+        bool isSuccess = await authService.login(email, password);
+
+        if (isSuccess) {
+
+          Navigator.pushNamed(context, '/home');
         } else {
-          // 로그인 실패
-          // 여기에 로그인 실패 시 수행할 작업 추가
-          //임시
-          Navigator.pushNamed(context, '/home2');
-          print('Login failed');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('로그인에 실패했습니다. 다시 시도하세요.'),
+              backgroundColor: Colors.red,
+              duration: Duration(seconds: 3),
+            ),
+          );
         }
       },
       style: ElevatedButton.styleFrom(
-          minimumSize: Size(200, 50), // 최소 너비와 높이 설정
+          minimumSize: Size(200, 50),
           backgroundColor: buttonBackgroundColor),
       child: Container(
         padding: const EdgeInsets.all(15),

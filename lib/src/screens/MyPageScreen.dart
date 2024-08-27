@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
 import 'dart:io';
+import '../service/JWTapi.dart';
 
 class MyPage extends StatefulWidget {
   const MyPage({super.key});
@@ -13,6 +14,7 @@ class MyPage extends StatefulWidget {
 }
 
 class _MyPageState extends State<MyPage> {
+  final JwtApi jwtApi = JwtApi();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -148,9 +150,12 @@ class _MyPageState extends State<MyPage> {
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,color: Colors.black),
             ),
             TextButton(
-              onPressed: () {Navigator.pushNamed(context, '/login');},
+              onPressed: () async{
+                await jwtApi.removeToken();
+                Navigator.pushNamed(context, '/home');
+                },
               child: Text(
-                '로그인',
+                '로그아웃',
                 style: TextStyle(fontSize: 18,color: Colors.black),
               ),
             ),

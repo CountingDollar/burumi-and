@@ -1,4 +1,5 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:team_burumi/src/screens/MyPageScreen.dart';
 import 'package:team_burumi/src/screens/NotificationScreen.dart';
 import 'package:team_burumi/src/screens/ErrandPostScreen.dart';
 import 'package:team_burumi/src/screens/HomeScreen.dart';
@@ -8,6 +9,8 @@ import 'package:team_burumi/src/screens/SignUpScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:team_burumi/src/screens/activity.dart';
+
+import 'src/screens/chat_screen.dart';
 
 
 
@@ -43,6 +46,8 @@ class MyApp extends StatelessWidget {
         '/alarm': (context) =>  AlarmPage(),
         '/activity': (context) =>  Activity(),
         '/errand': (context) =>  ErrandScreen(),
+        '/mypage':(context)=>MyPage(),
+        '/chat':(context)=> ChatScreen(),
 
       },
       ),

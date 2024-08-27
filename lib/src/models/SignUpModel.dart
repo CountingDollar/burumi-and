@@ -1,126 +1,131 @@
 
-import 'dart:convert';
-
-List<User> userFromJson(String str) => List<User>.from(json.decode(str).map((x) => User.fromJson(x)));
-
-String userToJson(List<User> data) => json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
 
 class User {
-  int id;
   String name;
-  String username;
   String email;
-  Address address;
+  String password;
   String phone;
-  String website;
-  Company company;
 
   User({
-    required this.id,
     required this.name,
-    required this.username,
     required this.email,
-    required this.address,
-    required this.phone,
-    required this.website,
-    required this.company,
+    required this.password,
+    required this.phone
+
   });
 
   factory User.fromJson(Map<String, dynamic> json) => User(
-    id: json["id"],
     name: json["name"],
-    username: json["username"],
     email: json["email"],
-    address: Address.fromJson(json["address"]),
+    password:json["password"],
     phone: json["phone"],
-    website: json["website"],
-    company: Company.fromJson(json["company"]),
+
   );
 
   Map<String, dynamic> toJson() => {
-    "id": id,
     "name": name,
-    "username": username,
     "email": email,
-    "address": address.toJson(),
+    "password": password,
     "phone": phone,
-    "website": website,
-    "company": company.toJson(),
   };
 }
 
-class Address {
-  String street;
-  String suite;
-  String city;
-  String zipcode;
-  Geo geo;
 
-  Address({
-    required this.street,
-    required this.suite,
-    required this.city,
-    required this.zipcode,
-    required this.geo,
+class ApiResponse {
+  final int code;
+  final String message;
+  final UserResult result;
+
+  ApiResponse({
+    required this.code,
+    required this.message,
+    required this.result,
   });
 
-  factory Address.fromJson(Map<String, dynamic> json) => Address(
-    street: json["street"],
-    suite: json["suite"],
-    city: json["city"],
-    zipcode: json["zipcode"],
-    geo: Geo.fromJson(json["geo"]),
-  );
-
-  Map<String, dynamic> toJson() => {
-    "street": street,
-    "suite": suite,
-    "city": city,
-    "zipcode": zipcode,
-    "geo": geo.toJson(),
-  };
+  factory ApiResponse.fromJson(Map<String, dynamic> json) {
+    return ApiResponse(
+      code: json['code'],
+      message: json['message'],
+      result: UserResult.fromJson(json['result']),
+    );
+  }
 }
 
-class Geo {
-  String lat;
-  String lng;
+class UserResult {
+  final bool isAdmin;
+  final String createdAt;
+  final int id;
+  final String name;
+  final String phone;
+  final String email;
 
-  Geo({
-    required this.lat,
-    required this.lng,
-  });
-
-  factory Geo.fromJson(Map<String, dynamic> json) => Geo(
-    lat: json["lat"],
-    lng: json["lng"],
-  );
-
-  Map<String, dynamic> toJson() => {
-    "lat": lat,
-    "lng": lng,
-  };
-}
-
-class Company {
-  String name;
-  String catchPhrase;
-  String bs;
-
-  Company({
+  UserResult({
+    required this.isAdmin,
+    required this.createdAt,
+    required this.id,
     required this.name,
-    required this.catchPhrase,
-    required this.bs,
+    required this.phone,
+    required this.email,
   });
 
-  factory Company.fromJson(Map<String, dynamic> json) => Company(
-    name: json["name"],
-    catchPhrase: json["catchPhrase"],
-    bs: json["bs"],
-  );
+  factory UserResult.fromJson(Map<String, dynamic> json) {
+    return UserResult(
+      isAdmin: json['is_admin'],
+      createdAt: json['created_at'],
+      id: json['_id'],
+      name: json['name'],
+      phone: json['phone'],
+      email: json['email'],
+    );
+  }
+}
 
-  Map<String, dynamic> toJson() => {
-    "name": name,
-    "catchPhrase": catchPhrase,
-    "bs": bs,
-  };
+
+class VerifyCodeResponse {
+  final int code;
+  final String message;
+  final bool result;
+
+  VerifyCodeResponse({
+    required this.code,
+    required this.message,
+    required this.result,
+  });
+
+  factory VerifyCodeResponse.fromJson(Map<String, dynamic> json) {
+    return VerifyCodeResponse(
+      code: json['code'],
+      message: json['message'],
+      result:json["result"],
+    );
+  }
+}
+
+class VerifyCodeResult {
+  final String resultCode;
+  final String message;
+  final String msgId;
+  final int successCnt;
+  final int errorCnt;
+  final String msgType;
+
+  VerifyCodeResult({
+    required this.resultCode,
+    required this.message,
+    required this.msgId,
+    required this.successCnt,
+    required this.errorCnt,
+    required this.msgType,
+  });
+
+  factory VerifyCodeResult.fromJson(Map<String, dynamic> json) {
+    return VerifyCodeResult(
+      resultCode: json['result_code'],
+      message: json['message'],
+      msgId: json['msg_id'],
+      successCnt: json['success_cnt'],
+      errorCnt: json['error_cnt'],
+      msgType: json['msg_type'],
+    );
+  }
 }

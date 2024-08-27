@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:remedi_kopo/remedi_kopo.dart';
 import '../providers/Styles.dart';
+import '../service/ErrandApi.dart';
 import 'AdressScreen.dart';
 
 class ErrandScreen extends StatefulWidget {
@@ -14,10 +15,14 @@ class _ErrandScreenState extends State<ErrandScreen> {
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _detailedAddressController =
       TextEditingController();
+  final TextEditingController _summaryController = TextEditingController();
   final TextEditingController _costController = TextEditingController();
   final TextEditingController _deadlineController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   bool _isAddressSelected = false;
+  final List<String> _categories = ['서류배달', '물건배달', '음식배달', '기타'];
+  String? _selectedCategory;
+
 
   @override
   Widget build(BuildContext context) {
@@ -37,11 +42,28 @@ class _ErrandScreenState extends State<ErrandScreen> {
               CurrentLocationButton(),
               SizedBox(height: 20),
               Text(
+                '카테고리 선택',
+                style: TextStyle(
+                    fontSize: 20,
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold),
+              ),
+              Row(
+                children: _categories.map((category) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                    child: _buildCategoryButton(category),
+                  );
+                }).toList(),
+              ),
+              SizedBox(height: 20),
+              Text(
                 '제목',
                 style: errandPostTextStyle,
               ),
               SizedBox(height: 10,),
               TextField(
+                controller: _summaryController,
                 decoration: InputDecoration(
                   hintText: '심부름 내용 요약',
                   border: OutlineInputBorder(),
@@ -88,8 +110,19 @@ class _ErrandScreenState extends State<ErrandScreen> {
               SizedBox(height: 25),
               Center(
                 child: ElevatedButton(
-                  onPressed: () {
-                    // 게시하기 버튼 클릭 시의 동작
+                  onPressed: () async{
+                    errandsApi errandsService = errandsApi();
+
+                    await errandsService.createErrand(
+                      context: context,
+                      destination: _addressController .text,
+                      destinationDetail: _detailedAddressController.text ,
+                      cost: _costController.text,
+                      summary: _summaryController.text,
+                      details: _descriptionController.text,
+                      categoryId: "1",
+                      scheduledAt: _deadlineController.text,
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     minimumSize: Size(350, 50),
@@ -104,6 +137,28 @@ class _ErrandScreenState extends State<ErrandScreen> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+  Widget _buildCategoryButton(String category) {
+    final isSelected = _selectedCategory == category;
+    return ElevatedButton(
+      onPressed: () {
+        setState(() {
+          _selectedCategory = isSelected ? null : category;
+        });
+      },
+      style: ElevatedButton.styleFrom(
+        padding: EdgeInsets.zero,
+        backgroundColor: isSelected ? Colors.purple : Colors.white38,
+      ),
+      child: Text(
+        category,
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+          color: isSelected ? Colors.white : Colors.black,
         ),
       ),
     );

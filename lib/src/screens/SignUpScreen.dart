@@ -3,7 +3,8 @@ import 'package:flutter/services.dart';
 import 'dart:async';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
-import 'package:team_burumi/src/service/ApiVerifyPhone.dart';
+import 'package:team_burumi/src/service/SignUpApi.dart';
+import '../models/SignUpModel.dart';
 import '../providers/Styles.dart';
 
 class SignupPage extends StatefulWidget {
@@ -49,17 +50,8 @@ class _StepperPageState extends State<SignupPage> {
         type: StepperType.horizontal,
         currentStep: _currentStep,
         onStepContinue: () {
-          // if (_isFormValid()) {
           _handleStepContinue();
-          // } else {
-          //   // 모든 필드가 유효하지 않은 경우에 대한 처리
-          //   // 사용자에게 메시지 표시 또는 필요한 동작 수행
-          //   ScaffoldMessenger.of(context).showSnackBar(
-          //     SnackBar(
-          //       content: Text('값이 유효하지 않습니다.'),
-          //     ),
-          //   );
-          // }
+
         },
         onStepCancel: () {
           _handleStepCancel();
@@ -78,35 +70,36 @@ class _StepperPageState extends State<SignupPage> {
                           : Colors.grey, // 조건에 따라 버튼의 색을 변경
                     ),
                     onPressed: () async {
-                      // String name = _nameController.text;
-                      // String phone = _phoneNumberController.text;
-                      // String email = _emailController.text;
-                      // String password = _pwdController.text;
-                      // String verifyCode = _codeInputController.text;
-                      //
-                      // final authService = AuthService();
-                      //
-                      // // 유저 생성 API 호출 및 성공 여부 확인
-                      // bool isSuccess = await authService.createUser(
-                      //   name: name,
-                      //   phone: phone,
-                      //   email: email,
-                      //   password: password,
-                      //   // verifyCode: verifyCode,
-                      // );
-                      //true -> isSuccess로  바꿔야함 임시로 (서버 정상화시)
-                      // if (true) {
-                      //   _handleStepContinue();
-                      // } else {
-                      //   // 서버 전송이 실패하면 스낵바로 오류 메시지 출력
-                      //   ScaffoldMessenger.of(context).showSnackBar(
-                      //     SnackBar(
-                      //       content: Text('유저 생성에 실패했습니다. 다시 시도하세요.'),
-                      //       backgroundColor: Colors.red, // 오류 메시지이므로 빨간색 배경 사용
-                      //       duration: Duration(seconds: 3), // 3초 동안 표시
-                      //     ),
-                      //   );
-                      // }
+                      String name = _nameController.text;
+                      String phone = _phoneNumberController.text;
+                      String email = _emailController.text;
+                      String password = _pwdController.text;
+
+                      final user = User(
+                        name: name,
+                        phone: phone,
+                        email: email,
+                        password: password,
+                        // verifyCode: verifyCode, // 필요 시 추가
+                      );
+
+                      final authService = AuthService();
+
+                      // 유저 생성 API 호출 및 성공 여부 확인
+                      bool isSuccess = await authService.createUser(user);
+
+                      if (isSuccess) {
+                        _handleStepContinue();
+                      } else {
+                        // 서버 전송이 실패하면 스낵바로 오류 메시지 출력
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('유저 생성에 실패했습니다. 다시 시도하세요.'),
+                            backgroundColor: Colors.red, // 오류 메시지이므로 빨간색 배경 사용
+                            duration: Duration(seconds: 3), // 3초 동안 표시
+                          ),
+                        );
+                      }
                       if (_formKey.currentState!.validate()) {
                         _handleStepContinue();
                       } else {
@@ -491,7 +484,6 @@ class _StepperPageState extends State<SignupPage> {
   TextFormField codeInput() {
     return TextFormField(
       controller: _codeInputController,
-      obscureText: true,
       autofocus: false,
       validator: (val) {
         if (val!.isEmpty) {

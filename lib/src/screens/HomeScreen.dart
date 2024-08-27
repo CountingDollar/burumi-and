@@ -4,9 +4,10 @@ import 'package:team_burumi/src/screens/chat_screen.dart';
 import 'package:team_burumi/src/screens/MyPageScreen.dart';
 import 'package:team_burumi/src/providers/AppLabels.dart';
 import 'package:team_burumi/src/models/ErrandGetModel.dart';
-import 'package:team_burumi/src/service/ApiErrand.dart';
+import 'package:team_burumi/src/service/ErrandApi.dart';
 
 import '../providers/Styles.dart';
+import '../service/JWTapi.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -18,12 +19,11 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   int _selectedIndex = 0;
 
-  List pages = [
+  List<Widget> pages = [
     home2(),
     Activity(),
     ChatScreen(),
     MyPage(),
-    // LoginPage(),
   ];
 
   @override
@@ -42,14 +42,17 @@ class _HomeState extends State<Home> {
               },
               icon: Icon(Icons.notifications, color: Colors.black)),
         ],
-        shape: Border(
-          bottom: BorderSide(
-            color: Colors.grey,
-            width: 1,
-          ),
-        ),
+        // shape: Border(
+        //   bottom: BorderSide(
+        //     color: Colors.grey,
+        //     width: 1,
+        //   ),
+        // ),
       ),
-      body: pages[_selectedIndex],
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: pages,
+      ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: Colors.deepPurple, // 네비게이션 바 배경색
@@ -75,6 +78,21 @@ class _HomeState extends State<Home> {
         ),
       ),
     );
+  }
+
+  Future<void> _handleNavigation(int index) async {
+    final JwtApi jwtApi = JwtApi();
+    String? token = await jwtApi.getToken();
+    print('Selected index: $index, Token: $token');
+    if (_selectedIndex == index) return;
+
+    if (token != null) {
+      setState(() {
+        _selectedIndex = index;
+      });
+    } else {
+      Navigator.pushNamed(context, '/login');
+    }
   }
 
   Widget _bottomNavigationBar(BuildContext context) {
@@ -112,23 +130,24 @@ class _HomeState extends State<Home> {
       ],
       currentIndex: _selectedIndex,
       onTap: (int index) {
-        setState(() {
-          _selectedIndex = index;
-        });
+        _handleNavigation(index);
       },
     );
   }
 }
 
 class home2 extends StatefulWidget {
-  const home2({Key? key}) : super(key: key);
+  home2({Key? key}) : super(key: key);
 
   @override
   _Home2State createState() => _Home2State();
 }
 
 class _Home2State extends State<home2> {
-  final errandslist _errandlist = errandslist();
+  JwtApi jwtApi = new JwtApi();
+  String? _selectedCategory;
+  List<String> _categories = ['서류배달', '물건배달', '음식배달', '기타']; // 카테고리 목록
+  final errandsApi _errandlist = errandsApi();
   String _selectedSortOption = '최신순';
   final List<String> _sortOptions = ['최신순', '오래된 순'];
   List<Post> _posts = [];
@@ -141,13 +160,17 @@ class _Home2State extends State<home2> {
     _fetchPosts();
   }
 
-  Future<void> _fetchPosts() async {
+  Future<void> _fetchPosts({int page = 1, int size = 20}) async {
+    setState(() {
+      _isLoading = true;
+    });
+
     try {
-      final posts = await _errandlist.fetchPosts();
+      final posts = await _errandlist.fetchPosts(page: page, size: size);
       setState(() {
         _posts = posts;
         _isLoading = false;
-        _totalOrderers = posts.length;
+        _totalOrderers = posts.length; // Or adjust according to your needs
       });
       print('Posts loaded: $_posts');
     } catch (e) {
@@ -165,56 +188,82 @@ class _Home2State extends State<home2> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 0.0),
           child: Container(
-            height: 20,
-            width: double.infinity, // 부모의 너비를 꽉 채우도록 설정
-            child: Row(
+            width: double.infinity,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Row(
+                  children: [
+                    Icon(Icons.menu, size: 20),
+                    SizedBox(width: 10),
+                    Text(
+                      "카테고리",
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(width: 10),
+
+                    Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: _categories.map((category) {
+                        return SizedBox(
+                          child: _buildCategoryButton(category),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
                 Container(
-                  width: 160, // 전체 건수 컨테이너의 너비 조절
-                  height: 50,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Text('전체 건수: $_totalOrderers건',
-                          style: TextStyle(fontSize: 14)),
-                    ],
+                  width: double.infinity,
+                  child: Divider(
+                    color: Colors.grey,
+                    thickness: 0.7,
                   ),
                 ),
-                Spacer(), // 남은 공간을 차지하여 정렬 조건을 오른쪽으로 밀어냄
-                Container(
-                  width: 140,
-                  height: 50, // 정렬 조건 컨테이너의 너비 조절
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text('정렬: ', style: TextStyle(fontSize: 14)),
-                      DropdownButton<String>(
-                        value: _selectedSortOption,
-                        onChanged: (String? newValue) {
-                          setState(() {
-                            _selectedSortOption = newValue!;
-                            // 정렬 조건에 따라 게시물 목록을 다시 로드하거나 정렬하는 로직 추가
-                          });
-                        },
-                        items: _sortOptions
-                            .map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value, style: TextStyle(fontSize: 14)),
-                          );
-                        }).toList(),
-                        // style: TextStyle(fontSize: 20),  // 드롭다운 버튼의 글꼴 크기 조정
-                        isDense: true, // 드롭다운 버튼 자체의 크기 줄이기// 드롭다운 버튼의 글꼴 크기 조정
+                Row(
+                  children: [
+                    Text(
+                      '전체 건수: $_totalOrderers건',
+                      style: TextStyle(fontSize: 14),
+                    ),
+                    Spacer(),
+                    Container(
+                      width: 140,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text('정렬: ', style: TextStyle(fontSize: 14)),
+                          DropdownButton<String>(
+                            value: _selectedSortOption,
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                _selectedSortOption = newValue!;
+                              });
+                            },
+                            items: _sortOptions
+                                .map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child:
+                                    Text(value, style: TextStyle(fontSize: 14)),
+                              );
+                            }).toList(),
+                            isDense: true,
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
         ),
         Container(
-          width: double.infinity, // 선의 너비를 화면 전체로 설정
+          width: double.infinity,
           child: Divider(
             color: Colors.grey,
             thickness: 1,
@@ -229,7 +278,33 @@ class _Home2State extends State<home2> {
     );
   }
 
-  //
+  Widget _buildCategoryButton(String category) {
+    final isSelected = _selectedCategory == category;
+    return ElevatedButton(
+      onPressed: () {
+        setState(() {
+
+          _selectedCategory = isSelected ? null : category;
+        });
+      },
+      style: ElevatedButton.styleFrom(
+        padding: EdgeInsets.zero,
+        backgroundColor: _selectedCategory == category
+            ? Colors.purple
+            : Colors.white38,
+      ),
+      child: Text(
+        category,
+        style: TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.bold,
+            color: _selectedCategory == category
+                ? Colors.white
+                : Colors.white), // 텍스트의 글자색 조절
+      ),
+    );
+  }
+
   Widget _buildPostList() {
     return ListView.builder(
       itemCount: _posts.length,
@@ -245,10 +320,13 @@ class _Home2State extends State<home2> {
     return Scaffold(
       body: _body(),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pushNamed(context, '/errand');
-          // 게시글 작성 버튼을 눌렀을 때 작업 수행
-          // 여기에 게시글 작성 화면을 열거나 다른 작업을 수행하는 코드를 추가할 수 있습니다.
+        onPressed: () async{
+          String? token = await jwtApi.getToken();
+          if (token == null) {
+            Navigator.pushNamed(context, '/login');
+          } else {
+            Navigator.pushNamed(context, '/errand');
+          }
         },
         backgroundColor: buttonBackgroundColor,
         foregroundColor: Colors.white,
@@ -256,63 +334,6 @@ class _Home2State extends State<home2> {
         child: Icon(Icons.edit),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-    );
-  }
-
-  Widget _bottomNavigationBar(BuildContext context) {
-    return BottomNavigationBar(
-      selectedItemColor: Colors.black,
-      selectedLabelStyle: TextStyle(color: Colors.black),
-      unselectedItemColor: Colors.grey,
-      unselectedLabelStyle: TextStyle(color: Colors.grey),
-      showUnselectedLabels: true,
-      items: [
-        BottomNavigationBarItem(
-          icon: Container(
-            child: Icon(Icons.home),
-          ),
-          label: AppLabels.home,
-        ),
-        BottomNavigationBarItem(
-          icon: Container(
-            child: Icon(Icons.text_snippet),
-          ),
-          label: AppLabels.activity,
-        ),
-        BottomNavigationBarItem(
-          icon: Container(
-            child: Icon(Icons.chat_bubble_outline),
-          ),
-          label: AppLabels.chat,
-        ),
-        BottomNavigationBarItem(
-          icon: Container(
-            child: Icon(Icons.person_outline),
-          ),
-          label: AppLabels.info,
-        ),
-      ],
-      onTap: (index) {
-        switch (index) {
-          case 0:
-            // 홈 페이지로 이동
-            Navigator.pushNamed(context, '/home');
-            break;
-          case 1:
-            // 내 활동 보기 페이지로 이동
-            Navigator.pushNamed(context, '/activity');
-            break;
-          case 2:
-            // 채팅 페이지로 이동
-            Navigator.pushNamed(context, '/chat');
-            break;
-          case 3:
-            // 내 페이지로 이동
-            Navigator.pushNamed(context, '/mypage');
-            //   Navigator.pushNamed(context, '/login');
-            break;
-        }
-      },
     );
   }
 }
@@ -336,6 +357,13 @@ class PostItem extends StatelessWidget {
                 child: Text("${post.cost} 원"),
               ),
               Text(
+                post.destination,
+                style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                    color: Colors.grey),
+              ),
+              Text(
                 post.destinationDetail,
                 style: const TextStyle(
                     fontSize: 12,
@@ -344,7 +372,7 @@ class PostItem extends StatelessWidget {
               ),
               SizedBox(height: 8),
               Text(
-                post.details,
+                post.summary,
                 style:
                     const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
               ),
@@ -358,7 +386,7 @@ class PostItem extends StatelessWidget {
                       MaterialPageRoute(
                         builder: (context) => ApplyPage(
                           summary: post.summary,
-                          deadline: post.closedAt ?? 'No deadline',
+                          deadline: post.scheduledAt ?? 'No deadline',
                           cost: post.cost.toString(),
                           content: post.details,
                           destination: post.destinationDetail,
@@ -487,7 +515,7 @@ class ApplyPage extends StatelessWidget {
                     child: Row(
                       children: [
                         Icon(Icons.access_time, color: Colors.grey),
-                        SizedBox(width: 8), // 아이콘과 텍스트 간의 간격
+                        SizedBox(width: 8),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -535,8 +563,8 @@ class ApplyPage extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue, // 버튼 색상
-                  ),
+                      backgroundColor: buttonBackgroundColor
+                      ),
                   onPressed: () {
                     // 지원하기 버튼 눌렀을 때 동작
                   },

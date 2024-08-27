@@ -1,32 +1,55 @@
 import 'package:dio/dio.dart';
 
+class PostResponse {
+  final int code;
+  final String message;
+  final Post result;
+
+  PostResponse({
+    required this.code,
+    required this.message,
+    required this.result,
+  });
+
+  factory PostResponse.fromJson(Map<String, dynamic> json) {
+    return PostResponse(
+      code: json['code'],
+      message: json['message'],
+      result: Post.fromJson(json['result']),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'code': code,
+      'message': message,
+      'result': result,
+    };
+  }
+}
 class Post {
   final int id;
   final String destination;
   final String destinationDetail;
-  final int cost;
-  final int categoryId;
+  final String cost;
   final String summary;
   final String details;
+  final int? categoryId;
+  final String? scheduledAt;
   final String status;
-  final String? closedAt;
-  final String? proofImageUrl;
-  final int ordererId;
-  final int messengerId;
+  final String createdAt;
 
   Post({
     required this.id,
     required this.destination,
     required this.destinationDetail,
     required this.cost,
-    required this.categoryId,
     required this.summary,
     required this.details,
+    required this.categoryId,
+    required this.scheduledAt,
     required this.status,
-    this.closedAt,
-    this.proofImageUrl,
-    required this.ordererId,
-    required this.messengerId,
+    required this.createdAt,
   });
 
   factory Post.fromJson(Map<String, dynamic> json) {
@@ -34,15 +57,28 @@ class Post {
       id: json['_id'],
       destination: json['destination'],
       destinationDetail: json['destination_detail'],
-      cost: int.parse(json['cost']),
-      categoryId: json['category_id'],
+      cost: json['cost'],
       summary: json['summary'],
       details: json['details'],
+      categoryId: json['category_id'],
+      scheduledAt: json['scheduled_at'],
       status: json['status'],
-      closedAt: json['closed_at'], // 처리 방식 수정
-      proofImageUrl: json['proof_image_url'],
-      ordererId: json['orderer_id'],
-      messengerId: json['messenger_id'],
+      createdAt: json['created_at'],
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      '_id': id,
+      'destination': destination,
+      'destination_detail': destinationDetail,
+      'cost': cost,
+      'summary': summary,
+      'details': details,
+      'category_id': categoryId,
+      'scheduled_at': scheduledAt,
+      'status': status,
+      'created_at': createdAt,
+    };
   }
 }

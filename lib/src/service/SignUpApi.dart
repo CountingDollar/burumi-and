@@ -1,49 +1,43 @@
 import 'package:dio/dio.dart';
 
+
+import '../models/SignUpModel.dart';
+
 class AuthService {
   final Dio _dio = Dio();
 
-
-  Future<bool> createUser({
-    required String name,
-    required String phone,
-    required String email,
-    required String password,
-    // required String verifyCode,
-  }) async {
+  Future<bool> createUser(User user) async {
     final url = 'https://api.dev.burumi.kr/v1/users';
+
     try {
       final response = await _dio.post(
         url,
-        data: {
-          'name': name,
-          'phone': phone,
-          'email': email,
-          'password': password,
-          // 'verify_code': verifyCode,
-        },
-        options: Options(
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        ),
+        data: user.toJson(),
       );
 
       if (response.statusCode == 200) {
-        print('유저 생성 성공: ${response.data}');
-        return true; // 성공 시 true 반환
+        // 응답 데이터 파싱
+        final apiResponse = ApiResponse.fromJson(response.data);
+
+        if (apiResponse.code == 2000) {
+          // 유저 생성 성공
+          print('유저 생성 성공: ${apiResponse.result}');
+          return true;
+        } else {
+          // 서버 응답 코드가 2000이 아닌 경우
+          print('서버 응답 오류: ${apiResponse.message}');
+          return false;
+        }
       } else {
         print('서버 응답 오류: ${response.statusCode}');
-        return false; // 실패 시 false 반환
+        return false;
       }
     } catch (e) {
       print('에러 발생: $e');
-      return false; // 예외 발생 시 false 반환
+      return false;
     }
   }
 
-
-  // 전화번호 인증번호 전송
   Future<void> sendVerificationCode(String phoneNumber) async {
     final url = 'https://api.dev.burumi.kr/v1/auth/verify/phone';
     try {
@@ -71,24 +65,27 @@ class AuthService {
     }
   }
 
-
-  // 인증번호 유효성 확인
   Future<bool> verifyCode(String phoneNumber, String code) async {
     final url = 'https://api.dev.burumi.kr/v1/auth/verify/phone';
+
     try {
-      final response = await _dio.get(url, queryParameters: {
-        'phone': phoneNumber,
-        'code': code,
-      });
+      final response = await _dio.get(
+        url,
+        queryParameters: {
+          'phone': phoneNumber,
+          'code': code,
+        },
+      );
 
       if (response.statusCode == 200) {
-        final isValid = response.data['result'];
+        print('서버 응답 데이터: ${response.data}');
+        final verifyCodeResponse = VerifyCodeResponse.fromJson(response.data);
 
-        if (isValid) {
+        if (verifyCodeResponse.result) {
           print('인증번호가 유효합니다.');
           return true;
         } else {
-          print('인증번호가 유효하지 않습니다.');
+          print('인증번호가 유효하지 않습니다: ${verifyCodeResponse.message}');
           return false;
         }
       } else {
