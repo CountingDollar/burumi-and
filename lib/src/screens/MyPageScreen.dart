@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:team_burumi/src/cards/postcard.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
-import 'dart:io';
 import '../service/JWTapi.dart';
+import 'BankaccountScreen.dart';
 
 class MyPage extends StatefulWidget {
   const MyPage({super.key});
@@ -15,6 +13,23 @@ class MyPage extends StatefulWidget {
 
 class _MyPageState extends State<MyPage> {
   final JwtApi jwtApi = JwtApi();
+  String? name;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserName();
+  }
+
+  Future<void> _loadUserName() async {
+    final token = await jwtApi.getToken();
+    if (token != null) {
+      final userName = await jwtApi.getUserName(token);
+      setState(() {
+        name = userName;
+      });
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,8 +48,9 @@ class _MyPageState extends State<MyPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+
                 Text(
-                  '000 님',
+                  '${name} 님',
                   style: TextStyle(fontSize: 15, fontWeight: FontWeight.normal),
                 ),
                 TextButton(
@@ -61,7 +77,7 @@ class _MyPageState extends State<MyPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '부루미 포인트',
+                    '부르미 포인트',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   Text(
@@ -172,7 +188,12 @@ class _MyPageState extends State<MyPage> {
     );
   }
 }
+
 class EditInfoPage extends StatelessWidget {
+  // MyPage mypage= MyPage();
+  // String name=mypage._loadUserName();
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -212,8 +233,7 @@ class EditInfoPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             SizedBox(height: 20),
-            Text(
-              '000님',
+            Text(" 님",
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 20),
@@ -353,7 +373,7 @@ class completepage extends StatelessWidget {
             ),
             ElevatedButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, '/home2');
+                  Navigator.pushNamed(context, '/home');
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
@@ -375,91 +395,6 @@ class completepage extends StatelessWidget {
                   ),
                 )),
           ])),
-    );
-  }
-}
-
-class BankAccountForm extends StatelessWidget {
-  const BankAccountForm({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    // 은행 목록
-    final List<String> banks = ['농협', '카카오뱅크', '국민은행', '토스뱅크'];
-
-    // 은행 선택값을 저장할 변수
-    String? selectedBank;
-
-    // 계좌번호 입력 필드 컨트롤러
-    final TextEditingController accountNumberController = TextEditingController();
-
-    // 이미지 파일
-    File? _imageFile;
-
-    // 이미지를 갤러리에서 선택하는 메서드
-    Future<void> _pickImage() async {
-      final pickedFile = await ImagePicker().getImage(source: ImageSource.gallery);
-
-      if (pickedFile != null) {
-        _imageFile = File(pickedFile.path);
-      }
-    }
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('계좌등록'),
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _imageFile == null
-              ? Text('선택된사진이 없습니다')
-              : Image.file(_imageFile!),
-          SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: _pickImage,
-            child: Text('Select Image'),
-          ),
-          SizedBox(height: 60),
-          DropdownButtonFormField<String>(
-            value: selectedBank,
-            items: banks.map((bank) {
-              return DropdownMenuItem<String>(
-                value: bank,
-                child: Text(bank),
-              );
-            }).toList(),
-            onChanged: (String? value) {
-              // 선택된 은행을 업데이트
-              selectedBank = value;
-            },
-            decoration: InputDecoration(
-              border: OutlineInputBorder(),
-            ),
-          ),
-          SizedBox(height: 20),
-          TextFormField(
-            controller: accountNumberController,
-            keyboardType: TextInputType.number,
-            decoration: InputDecoration(
-              labelText: '계좌번호 입력',
-              border: OutlineInputBorder(),
-            ),
-          ),
-          SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () {
-
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => completepage())
-              );
-            },
-            child: Text('완료'),
-          ),
-        ],
-      ),
     );
   }
 }

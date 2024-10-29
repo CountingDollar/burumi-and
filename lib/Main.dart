@@ -15,7 +15,7 @@ import 'src/screens/chat_screen.dart';
 
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  // WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load();
   runApp(const MyApp());
 }

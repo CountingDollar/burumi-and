@@ -24,8 +24,7 @@ class ApiLogin {
         final loginResponse = LoginResponse.fromJson(response.data);
 
         if (loginResponse.code == 2000) {
-          print('로그인 성공: ${loginResponse.message}');
-
+          print('로그인 성공: ${loginResponse.message}${loginResponse.code}');
           if (loginResponse.code == 2000) {
             final String accessToken = loginResponse.result.accessToken;
             _jwtApi.saveToken(accessToken);

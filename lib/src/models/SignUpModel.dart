@@ -4,13 +4,13 @@ class User {
   String name;
   String email;
   String password;
-  String phone;
+  String code;
 
   User({
     required this.name,
     required this.email,
     required this.password,
-    required this.phone
+    required this.code
 
   });
 
@@ -18,7 +18,7 @@ class User {
     name: json["name"],
     email: json["email"],
     password:json["password"],
-    phone: json["phone"],
+    code: json["verify_code"]
 
   );
 
@@ -26,7 +26,7 @@ class User {
     "name": name,
     "email": email,
     "password": password,
-    "phone": phone,
+    "verify_code":code
   };
 }
 

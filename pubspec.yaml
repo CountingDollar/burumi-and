@@ -30,7 +30,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  http:
   fluttertoast:
 
 
@@ -49,7 +48,9 @@ dependencies:
   flutter_config: ^2.0.2
   flutter_dotenv: ^5.1.0
   shared_preferences: ^2.3.2
-
+  json_annotation: ^4.9.0
+  intl: ^0.19.0
+  auto_size_text: ^3.0.0
 
 
 
@@ -58,6 +59,8 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
+  build_runner: ^2.4.12
+  json_serializable: ^6.8.0
   dio: ^5.0.9
   infinite_scroll_pagination: ^3.2.0
   get: ^4.3.8
@@ -79,7 +82,6 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
-
   # To add assets to your application, add an assets section, like this:
   assets:
    - image/logo.png

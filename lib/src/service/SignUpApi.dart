@@ -18,22 +18,22 @@ class AuthService {
       if (response.statusCode == 200) {
         // 응답 데이터 파싱
         final apiResponse = ApiResponse.fromJson(response.data);
-
+        print('서버 응답 데이터: ${user}');
         if (apiResponse.code == 2000) {
           // 유저 생성 성공
           print('유저 생성 성공: ${apiResponse.result}');
           return true;
         } else {
           // 서버 응답 코드가 2000이 아닌 경우
-          print('서버 응답 오류: ${apiResponse.message}');
+          print('유저생성.서버 응답 오류: ${apiResponse.message}');
           return false;
         }
       } else {
-        print('서버 응답 오류: ${response.statusCode}');
+        print('유저생성.서버 응답 오류: ${response.statusCode}');
         return false;
       }
     } catch (e) {
-      print('에러 발생: $e');
+      print('유저생성.에러 발생: $e');
       return false;
     }
   }
@@ -58,10 +58,10 @@ class AuthService {
           print('인증번호 전송 실패: $message');
         }
       } else {
-        print('서버 응답 오류: ${response.statusCode}');
+        print('인증번호 전송.서버 응답 오류: ${response.statusCode}');
       }
     } catch (e) {
-      print('에러 발생: $e');
+      print('인증번호 전송.에러 발생: $e');
     }
   }
 
@@ -89,11 +89,11 @@ class AuthService {
           return false;
         }
       } else {
-        print('서버 응답 오류: ${response.statusCode}');
+        print('인증번호 확인.서버 응답 오류: ${response.statusCode}');
         return false;
       }
     } catch (e) {
-      print('에러 발생: $e');
+      print('인증번호 확인.에러 발생: $e');
       return false;
     }
   }

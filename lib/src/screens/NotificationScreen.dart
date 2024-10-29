@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:team_burumi/src/models/NotificationModel.dart';
-import 'package:team_burumi/src/providers/StausCodes.dart';
+import 'package:team_burumi/src/service/NoticeApi.dart';
 
 class AlarmPage extends StatefulWidget {
   @override
@@ -11,35 +10,36 @@ class AlarmPage extends StatefulWidget {
 }
 
 class _AlarmPageState extends State<AlarmPage> {
-  List<User> users = []; // User 모델의 리스트로 변경
+  List<Post> users = [];
   RefreshController _activityRefreshController = RefreshController(initialRefresh: false);
   RefreshController _refreshController = RefreshController(initialRefresh: false);
+  NoticeApi noticeAPi= new NoticeApi();
+
 
   @override
   void initState() {
     super.initState();
-    fetchUsers(); // 사용자 정보를 가져오는 함수 호출
+    fetchNotice(); // 사용자 정보를 가져오는 함수 호출
   }
 
   void _onRefresh() async {
-    await fetchUsers(); // 새로 고침 시 사용자 정보 다시 가져오기
+    await fetchNotice(); // 새로 고침 시 사용자 정보 다시 가져오기
     _refreshController.refreshCompleted();
     _activityRefreshController.refreshCompleted();
   }
-
-  Future<void> fetchUsers() async {
-    final response = await http.get(Uri.parse('https://jsonplaceholder.typicode.com/posts'));
-    if (response.statusCode == HttpStatusCodes.ok) {
-      List<dynamic> data = json.decode(response.body);
+  Future<void> fetchNotice() async {
+    try {
+      List<Post> fetchedPosts = await noticeAPi.fetchPosts(); // API에서 게시물 가져오기
       setState(() {
-        // API에서 가져온 데이터를 User 모델로 변환하여 users 리스트에 추가
-        users = data.map((item) => User.fromJson(item)).toList();
+        users = fetchedPosts; // 게시물 리스트 업데이트
       });
-    } else {
-      throw Exception('Failed to load users');
+    } catch (e) {
+      // 오류 처리
+      print(e); // 또는 사용자에게 오류 메시지 표시
+    } finally {
+      _refreshController.refreshCompleted(); // 새로 고침 완료
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -56,7 +56,7 @@ class _AlarmPageState extends State<AlarmPage> {
         ),
         body: TabBarView(
           children: [
-            NotificationTab(users: users, onRefresh: _onRefresh, refreshController: _refreshController),
+            NotificationTab(posts: users, onRefresh: _onRefresh, refreshController: _refreshController),
             ActivityTab(users: users, onRefresh: _onRefresh, refreshController: _activityRefreshController),
           ],
         ),
@@ -66,12 +66,12 @@ class _AlarmPageState extends State<AlarmPage> {
 }
 
 class NotificationTab extends StatelessWidget {
-  final List<User> users;
+  final List<Post> posts;
   final RefreshController refreshController;
   final VoidCallback onRefresh;
 
   const NotificationTab(
-      {Key? key, required this.users, required this.refreshController, required this.onRefresh})
+      {Key? key, required this.posts, required this.refreshController, required this.onRefresh})
       : super(key: key);
 
   @override
@@ -84,23 +84,23 @@ class NotificationTab extends StatelessWidget {
       controller: refreshController,
       onRefresh: onRefresh,
       child: ListView.builder(
-        itemCount: users.isEmpty ? 0 : users.length * 2 - 1,
+        itemCount: posts.isEmpty ? 0 : posts.length * 2 - 1,
         // 사용자 목록이 비어있으면 0을 반환하고, 아니면 사용자 수의 두 배에서 하나를 뺀 값을 반환합니다.
         itemBuilder: (context, index) {
           if (index.isOdd) {
             return Divider();
           } else {
             final userIndex = index ~/ 2; // 실제 사용자 인덱스 계산
-            final user = users[userIndex];
+            final post = posts[userIndex];
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: ListTile(
                 title: Text(
-                  user.title, // 사용자의 제목 표시
+                  post.title?? ' ', // 사용자의 제목 표시
                   style: const TextStyle(fontSize: 20),
                 ),
                 subtitle: Text(
-                  'ID: ${user.id}',
+                  post.content?? " "
                 ),
               ),
             );
@@ -112,7 +112,7 @@ class NotificationTab extends StatelessWidget {
 }
 
 class ActivityTab extends StatelessWidget {
-  final List<User> users;
+  final List<Post> users;
   final RefreshController refreshController;
   final VoidCallback onRefresh;
 
@@ -129,7 +129,7 @@ class ActivityTab extends StatelessWidget {
         itemCount: users.isEmpty ? 0 : users.length * 2 - 1,
         // 사용자 목록이 비어있으면 0을 반환하고, 아니면 사용자 수의 두 배에서 하나를 뺀 값을 반환합니다.
         itemBuilder: (context, index) {
-          if (index.isOdd) {
+          if (!index.isOdd) {
             return Divider();
           } else {
             final userIndex = index ~/ 2;
@@ -139,11 +139,11 @@ class ActivityTab extends StatelessWidget {
               child: ListTile(
                 leading: Icon(Icons.account_circle),
                 title: Text(
-                  user.body,
+                  user.title?? " ",
                   style: const TextStyle(fontSize: 20),
                 ),
                 subtitle: Text(
-                  'ID: ${user.userId}', // id를 subtitle로 사용
+                  user.content?? " ", // id를 subtitle로 사용
                 ),
               ),
             );

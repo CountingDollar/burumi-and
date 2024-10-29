@@ -1,84 +1,77 @@
-import 'package:dio/dio.dart';
 
-class PostResponse {
+import 'package:json_annotation/json_annotation.dart';
+part 'ErrandGetModel.g.dart';
+
+
+
+@JsonSerializable()
+class ErrandGetModel {
   final int code;
   final String message;
-  final Post result;
+  final List<Delivery> result;
 
-  PostResponse({
+  ErrandGetModel({
     required this.code,
     required this.message,
     required this.result,
   });
 
-  factory PostResponse.fromJson(Map<String, dynamic> json) {
-    return PostResponse(
-      code: json['code'],
-      message: json['message'],
-      result: Post.fromJson(json['result']),
-    );
-  }
+  // JSON 데이터를 Dart 객체로 변환
+  factory ErrandGetModel.fromJson(Map<String, dynamic> json) => _$ErrandGetModelFromJson(json);
 
-  Map<String, dynamic> toJson() {
-    return {
-      'code': code,
-      'message': message,
-      'result': result,
-    };
-  }
+  // Dart 객체를 JSON 데이터로 변환
+  Map<String, dynamic> toJson() => _$ErrandGetModelToJson(this);
 }
-class Post {
-  final int id;
-  final String destination;
-  final String destinationDetail;
-  final String cost;
-  final String summary;
-  final String details;
-  final int? categoryId;
-  final String? scheduledAt;
-  final String status;
-  final String createdAt;
 
-  Post({
+@JsonSerializable()
+class Delivery {
+  @JsonKey(name: '_id')
+  final int? id;
+  final String? destination;
+
+  final String? destinationDetail;
+
+
+  final String? cost;
+  final String? summary;
+  final String? details;
+  final String? proofImageUrl;
+  final int? category_id;
+  final int? ordererId;
+  final int? messengerId;
+  final String?  status;
+  final DateTime? scheduledAt;
+  final DateTime? startedAt;
+  final DateTime? completedAt;
+  final DateTime? closedAt;
+  final DateTime? deletedAt;
+  final DateTime? updatedAt;
+  final DateTime? createdAt;
+
+  Delivery({
     required this.id,
     required this.destination,
     required this.destinationDetail,
     required this.cost,
     required this.summary,
     required this.details,
-    required this.categoryId,
-    required this.scheduledAt,
+    this.proofImageUrl,
+    required this.category_id,
+    this.ordererId,
+    this.messengerId,
     required this.status,
+    required this.scheduledAt,
+    this.startedAt,
+    this.completedAt,
+    this.closedAt,
+    this.deletedAt,
+    this.updatedAt,
     required this.createdAt,
   });
 
-  factory Post.fromJson(Map<String, dynamic> json) {
-    return Post(
-      id: json['_id'],
-      destination: json['destination'],
-      destinationDetail: json['destination_detail'],
-      cost: json['cost'],
-      summary: json['summary'],
-      details: json['details'],
-      categoryId: json['category_id'],
-      scheduledAt: json['scheduled_at'],
-      status: json['status'],
-      createdAt: json['created_at'],
-    );
-  }
+  // JSON 데이터를 Dart 객체로 변환
+  factory Delivery.fromJson(Map<String, dynamic> json) => _$DeliveryFromJson(json);
 
-  Map<String, dynamic> toJson() {
-    return {
-      '_id': id,
-      'destination': destination,
-      'destination_detail': destinationDetail,
-      'cost': cost,
-      'summary': summary,
-      'details': details,
-      'category_id': categoryId,
-      'scheduled_at': scheduledAt,
-      'status': status,
-      'created_at': createdAt,
-    };
-  }
+  // Dart 객체를 JSON 데이터로 변환
+  Map<String, dynamic> toJson() => _$DeliveryToJson(this);
 }

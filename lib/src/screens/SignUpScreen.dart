@@ -29,13 +29,11 @@ class _StepperPageState extends State<SignupPage> {
   bool _isCodeValid = false;
   String buttonText = '인증번호받기';
   final AuthService _authService = AuthService();
-  final TextEditingController _controller = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   bool _isFormValid() {
     return _isNameValid && _isEmailValid && _isPasswordValid;
   }
-
   bool _isNumFormValid() {
     return _isPhoneNumberVaild;
   }
@@ -70,36 +68,6 @@ class _StepperPageState extends State<SignupPage> {
                           : Colors.grey, // 조건에 따라 버튼의 색을 변경
                     ),
                     onPressed: () async {
-                      String name = _nameController.text;
-                      String phone = _phoneNumberController.text;
-                      String email = _emailController.text;
-                      String password = _pwdController.text;
-
-                      final user = User(
-                        name: name,
-                        phone: phone,
-                        email: email,
-                        password: password,
-                        // verifyCode: verifyCode, // 필요 시 추가
-                      );
-
-                      final authService = AuthService();
-
-                      // 유저 생성 API 호출 및 성공 여부 확인
-                      bool isSuccess = await authService.createUser(user);
-
-                      if (isSuccess) {
-                        _handleStepContinue();
-                      } else {
-                        // 서버 전송이 실패하면 스낵바로 오류 메시지 출력
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('유저 생성에 실패했습니다. 다시 시도하세요.'),
-                            backgroundColor: Colors.red, // 오류 메시지이므로 빨간색 배경 사용
-                            duration: Duration(seconds: 3), // 3초 동안 표시
-                          ),
-                        );
-                      }
                       if (_formKey.currentState!.validate()) {
                         _handleStepContinue();
                       } else {
@@ -136,30 +104,57 @@ class _StepperPageState extends State<SignupPage> {
                       if (buttonText == '확인') {
                         String phoneNumber = _phoneNumberController.text;
                         String code = _codeInputController.text;
+                        String name = _nameController.text;
+                        String email = _emailController.text;
+                        String password = _pwdController.text;
 
-                        bool isValid =
-                            await _authService.verifyCode(phoneNumber, code);
+                        // 유저 정보 생성
+                        final user = User(
+                          name: name,
+                          email: email,
+                          password: password,
+                          code: code,
+                        );
 
-                        if (isValid) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => completepage(),
-                            ),
-                          );
+                        // 인증 및 유저 생성
+                        final authService = AuthService();
+
+                        // 인증 코드 검증을 먼저 수행
+                        bool isCodeValid = await authService.verifyCode(phoneNumber, code);
+
+                        if (isCodeValid) {
+                          // 인증 코드가 유효하면 유저 생성
+                          bool isSignUpValid = await authService.createUser(user);
+
+                          if (isSignUpValid) {
+                            // 유저 생성 성공 후 다음 페이지로 이동
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => completepage(),
+                              ),
+                            );
+                          } else {
+                            // 유저 생성 실패 시 스낵바로 오류 메시지 출력
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('유저 생성에 실패했습니다. 다시 시도하세요.'),
+                                backgroundColor: Colors.red,
+                                duration: Duration(seconds: 3),
+                              ),
+                            );
+                          }
                         } else {
-                          // 오류 메시지를 Snackbar로 표시
+                          // 인증 코드가 유효하지 않을 때 오류 메시지 출력
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text('인증번호가 유효하지 않습니다. 다시 시도하세요.'),
-                              backgroundColor: errorColor,
-                              // Snackbar 배경색을 빨간색으로 설정
-                              duration:
-                                  Duration(seconds: 3), // Snackbar가 3초 동안 표시됨
+                              backgroundColor: Colors.red,
+                              duration: Duration(seconds: 3),
                             ),
                           );
                         }
-                      } else {
+                      }else {
                         if (_isPhoneNumberVaild) {
                           setState(() {
                             _isCodeValid = true;
@@ -340,12 +335,22 @@ class _StepperPageState extends State<SignupPage> {
       ],
     );
   }
+  late FocusNode _focusNode;
 
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = FocusNode();
+
+    Future.delayed(Duration.zero, () {
+      FocusScope.of(context).requestFocus(_focusNode);
+    });
+  }
   Widget emailInput() {
     return Stack(children: [
       TextFormField(
           controller: _emailController,
-          autofocus: false,
+          focusNode: _focusNode,
           validator: (val) {
             if (val!.isEmpty) {
               return '이메일을 입력하세요.';

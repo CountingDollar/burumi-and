@@ -5,6 +5,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import "package:flutter_google_maps_webservices/geocoding.dart";
 import 'package:geolocator/geolocator.dart';
+import 'package:team_burumi/src/service/AddressApi.dart';
 
 import '../providers/Styles.dart';
 
@@ -24,8 +25,6 @@ class CustomGoogleMapState extends State<CustomGoogleMap> {
   Completer<GoogleMapController> _controller = Completer();
   TextEditingController _addressController = TextEditingController();
   double _currentZoom = 14.0;
-  LatLng? _currentPosition;
-  CameraPosition? _lastCameraPosition;
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +43,7 @@ class CustomGoogleMapState extends State<CustomGoogleMap> {
               initialCameraPosition: _initialPosition,
               markers: _markers,
               onTap: (LatLng position) {
-                _updateCameraPosition(position);
+
                 _onMarkerTapped(position);
               },
             ),
@@ -57,7 +56,7 @@ class CustomGoogleMapState extends State<CustomGoogleMap> {
                   controller: _addressController,
                   readOnly: true,
                   decoration: InputDecoration(
-                    hintText: '선택한 위치의 주소가 여기에 표시됩니다',
+                    hintText: '현재 위치로 이동 중 입니다.',
                   ),
                 ),
                 SizedBox(height: 20),
@@ -90,15 +89,14 @@ class CustomGoogleMapState extends State<CustomGoogleMap> {
   );
 
   Set<Marker> _markers = {};
-  // final _geocoding = GoogleMapsGeocoding(
-  //     apiKey:dotenv.env['GOOGLE_MAPS_API_KEY']);
+
 
   late GoogleMapsGeocoding _geocoding;
   @override
   void initState() {
     super.initState();
     _initializeGeocoding();
-    _addressController.text = widget.address; // 전달된 address 값을 TextField에 설정
+    _addressController.text = widget.address;
   }
 
   void _initializeGeocoding() {
@@ -110,6 +108,40 @@ class CustomGoogleMapState extends State<CustomGoogleMap> {
       // 환경 변수가 없을 때의 처리
       print('API Key is not set');
     }
+  }
+  void _onMarkerTapped(LatLng position) async {
+    final GoogleMapController controller = await _controller.future;
+
+    // 현재 줌 레벨을 저장
+    _currentZoom = (await controller.getZoomLevel());
+
+    // 마커 업데이트 및 위치 저장
+    setState(() {
+      _markers.clear();
+      _markers.add(Marker(
+        markerId: MarkerId('tappedLocation'),
+        position: position,
+        draggable: true,
+      ));
+    });
+    final _addressApi = addressApi();
+    try {
+      final response = await _addressApi.getAddressFromCoordinates(position.latitude,position.longitude);
+      setState(() {
+        _addressController.text = response ?? '주소를 찾을 수 없습니다';
+      });
+    } catch (e) {
+      print(e);
+      _showErrorDialog('주소를 가져오는 중 오류 발생: $e');
+    }
+
+    // 현재 줌 레벨을 유지하면서 새 위치로 카메라 이동
+    controller.animateCamera(CameraUpdate.newCameraPosition(
+      CameraPosition(
+        target: position,
+        zoom: _currentZoom,
+      ),
+    ));
   }
 
   Future<void> _getCurrentLocation() async {
@@ -144,143 +176,10 @@ class CustomGoogleMapState extends State<CustomGoogleMap> {
     // 현재 위치 가져오기
     Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
-    _updateCameraPosition(LatLng(position.latitude, position.longitude));
     _onMarkerTapped(LatLng(position.latitude, position.longitude));
   }
 
-  Future<void> _updateCameraPosition(LatLng position) async {
-    final GoogleMapController controller = await _controller.future;
-    controller.animateCamera(CameraUpdate.newCameraPosition(
-      CameraPosition(target: position, zoom: _currentZoom), // 현재 줌 레벨 유지
-    ));
-    setState(() {
-      _markers.clear();
-      _markers.add(
-        Marker(
-          markerId: MarkerId(position.toString()),
-          position: position,
-          infoWindow: InfoWindow(title: '현재 위치'),
-          onTap: () => _onMarkerTapped(position),
-        ),
-      );
-    });
-  }
 
-
-
-  void _onMarkerTapped(LatLng position) async {
-    final GoogleMapController controller = await _controller.future;
-
-    // 현재 줌 레벨을 저장
-    _currentZoom = (await controller.getZoomLevel());
-
-    // 마커 업데이트 및 위치 저장
-    setState(() {
-      _currentPosition = position;
-      _markers.clear();
-      _markers.add(Marker(
-        markerId: MarkerId('tappedLocation'),
-        position: position,
-        draggable: true,
-        onDragEnd: (newPosition) {
-          _onMarkerDragged(newPosition); // 마커 드래그 후 위치 업데이트
-        },
-      ));
-    });
-
-    try {
-      // 지오코딩 요청을 통해 한국어 주소를 가져옵니다.
-      final response = await _geocoding.searchByLocation(
-        Location(lat: position.latitude, lng: position.longitude),
-        language: 'ko', // 언어 설정을 한국어로 지정
-      );
-
-      if (response.results.isNotEmpty) {
-        final result = response.results.first;
-        setState(() {
-          _addressController.text = _getStreetAddress(result);
-        });
-      } else {
-        _showErrorDialog('선택한 위치에 대한 주소를 찾을 수 없습니다.');
-      }
-    } catch (e) {
-      _showErrorDialog('주소를 가져오는 중 오류 발생: $e');
-    }
-
-    // 현재 줌 레벨을 유지하면서 새 위치로 카메라 이동
-    controller.animateCamera(CameraUpdate.newCameraPosition(
-      CameraPosition(
-        target: position,
-        zoom: _currentZoom,
-      ),
-    ));
-  }
-
-  void _onMarkerDragged(LatLng newPosition) async {
-    final GoogleMapController controller = await _controller.future;
-
-    // 현재 줌 레벨을 저장
-    _currentZoom = (await controller.getZoomLevel());
-
-    // 마커 업데이트 및 위치 저장
-    setState(() {
-      _currentPosition = newPosition;
-      _markers.clear();
-      _markers.add(Marker(
-        markerId: MarkerId('tappedLocation'),
-        position: newPosition,
-        draggable: true,
-        onDragEnd: (newPosition) {
-          _onMarkerDragged(newPosition); // 마커 드래그 후 위치 업데이트
-        },
-      ));
-    });
-
-    try {
-      // 지오코딩 요청을 통해 한국어 주소를 가져옵니다.
-      final response = await _geocoding.searchByLocation(
-        Location(lat: newPosition.latitude, lng: newPosition.longitude),
-        language: 'ko', // 언어 설정을 한국어로 지정
-      );
-
-      if (response.results.isNotEmpty) {
-        final result = response.results.first;
-        setState(() {
-          _addressController.text = _getStreetAddress(result);
-        });
-      } else {
-        _showErrorDialog('선택한 위치에 대한 주소를 찾을 수 없습니다.');
-      }
-    } catch (e) {
-      _showErrorDialog('주소를 가져오는 중 오류 발생: $e');
-    }
-
-    // 현재 줌 레벨을 유지하면서 새 위치로 카메라 이동
-    controller.animateCamera(CameraUpdate.newCameraPosition(
-      CameraPosition(
-        target: newPosition,
-        zoom: _currentZoom,
-      ),
-    ));
-  }
-
-  String _getStreetAddress(GeocodingResult result) {
-    String streetAddress = '';
-
-    for (var component in result.addressComponents) {
-      if (component.types.contains('street_number') ||
-          component.types.contains('route')) {
-        streetAddress = component.longName;
-        break;
-      }
-    }
-
-    if (streetAddress.isEmpty) {
-      streetAddress = result.formattedAddress ?? '주소를 찾을 수 없습니다.';
-    }
-
-    return streetAddress;
-  }
 
   void _showErrorDialog(String message) {
     showDialog(
