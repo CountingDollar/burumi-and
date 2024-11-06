@@ -13,6 +13,7 @@ class PostItem extends StatelessWidget {
   late final String destinationDetail;
   late final String summary;
   late final String details;
+  //late final int ordererId;//추가
   final int category; // 카테고리 변수
   final List<String> categories;
 
@@ -34,6 +35,7 @@ class PostItem extends StatelessWidget {
     destinationDetail = post.destinationDetail ?? 'No details';
     summary = post.summary ?? 'No summary';
     details = post.details ?? 'No details';
+    //ordererId = post.ordererId ?? -1;//추가
   }
   JwtApi _jwtApi=new JwtApi();
 
@@ -122,6 +124,7 @@ class PostItem extends StatelessWidget {
                           destination: destination,
                           destinationDetail: destinationDetail,
                           categoryColor: PostListScreen.categoryColors,
+                          //ordererId: ordererId,//추가
                         ),
                       ),
                     );
@@ -166,3 +169,5 @@ class PostItem extends StatelessWidget {
     );
   }
 }
+
+

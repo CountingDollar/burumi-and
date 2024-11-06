@@ -58,3 +58,29 @@ class Message {
     );
   }
 }
+
+class ChatOverviewResponse {
+  final int code;
+  final String message;
+  final List<ChatOverview> chats;
+  final int count;
+
+  ChatOverviewResponse({
+    required this.code,
+    required this.message,
+    required this.chats,
+    required this.count,
+  });
+
+  factory ChatOverviewResponse.fromJson(Map<String, dynamic> json) {
+    return ChatOverviewResponse(
+      code: json['code'],
+      message: json['message'],
+      chats: (json['result']['chats'] as List)
+          .map((chatJson) => ChatOverview.fromJson(chatJson))
+          .toList(),
+      count: json['result']['count'],
+    );
+  }
+}
+

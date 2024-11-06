@@ -1,6 +1,8 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import '../providers/Styles.dart';
+import '../service/JWTapi.dart';
+import '../service/ChatApi.dart';
 
 class ApplyScreen extends StatelessWidget {
   final String summary;
@@ -10,6 +12,7 @@ class ApplyScreen extends StatelessWidget {
   final String destination;
   final String destinationDetail;
   final Map<String, Color> categoryColor;
+  //final int ordererId;//추가
 
   const ApplyScreen(
       {Key? key,
@@ -19,7 +22,9 @@ class ApplyScreen extends StatelessWidget {
         required this.content,
         required this.destination,
         required this.destinationDetail,
-        required this.categoryColor})
+        required this.categoryColor,
+        //required this.ordererId//추가
+      })
       : super(key: key);
 
   @override
@@ -165,3 +170,40 @@ class ApplyScreen extends StatelessWidget {
     );
   }
 }
+
+
+/*
+  Future<void> _createChat(BuildContext context) async {
+    try {
+      //user1Id 가져오기
+      final user1Id = await JwtApi().getUser1Id();
+      if (user1Id == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('사용자 ID를 확인할 수 없습니다. 다시 로그인 해주세요.')),
+        );
+        return;
+      }
+
+      // 채팅방 생성
+      final chatApi = ChatApi();
+      final chat = await chatApi.createChat(user1Id: user1Id, user2Id: ordererId);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('채팅방이 성공적으로 생성되었습니다!')),
+      );
+
+
+      Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen(chatId: chat.id)));
+
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('.')),
+      );
+    }
+  }
+
+
+
+
+
+
+*/
