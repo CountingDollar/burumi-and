@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:team_burumi/src/service/LogInApi.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 import '../providers/Styles.dart';
 
 class LoginPage extends StatefulWidget {
@@ -156,12 +156,13 @@ class _LoginPageState extends State<LoginPage> {
         String email = _emailController.text;
         String password = _pwdController.text;
 
-
         final authService = ApiLogin();
         bool isSuccess = await authService.login(email, password);
 
         if (isSuccess) {
-
+          if (_isChecked) {
+            await _storeCredentials(email, password); // 로그인 성공시 아이디및 이메일 저장
+          }
           Navigator.pushNamed(context, '/home');
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -185,4 +186,12 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
-}
+
+
+  Future<void> _storeCredentials(String email, String password) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('saved_email', email);
+    await prefs.setString('saved_password', password);
+    }
+  }
+
