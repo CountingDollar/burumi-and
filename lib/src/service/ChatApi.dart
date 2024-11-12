@@ -3,7 +3,7 @@ import '../models/ChatModels.dart';
 import '../service/ApiService.dart';
 
 class ChatApi {
-  final Dio _dio = ApiService().dio; // ApiService의 Dio 인스턴스 사용
+  final Dio _dio = ApiService().dio;
   final String baseUrl = "https://api.dev.burumi.kr/v1/chats";
 
   // 채팅방 조회

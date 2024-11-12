@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../providers/Styles.dart';
 import '../service/JWTapi.dart';
 import '../service/ChatApi.dart';
+import 'ChatScreen.dart';
 
 class ApplyScreen extends StatelessWidget {
   final String summary;
@@ -12,7 +13,7 @@ class ApplyScreen extends StatelessWidget {
   final String destination;
   final String destinationDetail;
   final Map<String, Color> categoryColor;
-  //final int ordererId;//추가
+  final int ordererId;//추가
 
   const ApplyScreen(
       {Key? key,
@@ -23,7 +24,7 @@ class ApplyScreen extends StatelessWidget {
         required this.destination,
         required this.destinationDetail,
         required this.categoryColor,
-        //required this.ordererId//추가
+        required this.ordererId//추가
       })
       : super(key: key);
 
@@ -155,6 +156,7 @@ class ApplyScreen extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                       backgroundColor: buttonBackgroundColor),
                   onPressed: () {
+                    _createChat(context);
                     // 지원하기 버튼 눌렀을 때 동작
                   },
                   child: Text(
@@ -169,10 +171,6 @@ class ApplyScreen extends StatelessWidget {
       ),
     );
   }
-}
-
-
-/*
   Future<void> _createChat(BuildContext context) async {
     try {
       //user1Id 가져오기
@@ -201,9 +199,11 @@ class ApplyScreen extends StatelessWidget {
     }
   }
 
+}
 
 
 
 
 
-*/
+
+

@@ -1,5 +1,6 @@
   import 'package:shared_preferences/shared_preferences.dart';
   import 'package:dio/dio.dart';
+
   class JwtApi {
     final Dio _dio = Dio();
     final String _url = 'https://api.dev.burumi.kr/v1/auth/verify';
@@ -117,5 +118,12 @@
       } catch (e) {
         print('오류 발생: $e');
       }
+
+    }
+    Future<int?> getUser1Id() async {
+      if (user1Id == null) {
+        await verifyTokenAndSaveUserId();
+      }
+      return user1Id;
     }
   }

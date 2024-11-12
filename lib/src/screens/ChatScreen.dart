@@ -1,6 +1,10 @@
+import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import '../models/ChatModels.dart';
 import '../service/ChatApi.dart';
+import '../service/ImageApi.dart';
 
 class ChatScreen extends StatefulWidget {
   final int chatId;
@@ -13,13 +17,30 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final ChatApi _chatApi = ChatApi();
+  final ImageApi _imageApi = ImageApi();
   List<MessageModel> messages = [];
   final TextEditingController _messageController = TextEditingController();
+  Timer? _timer;
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
     super.initState();
     _fetchMessages();
+    _startPolling();
+  }
+
+  void _startPolling() {
+    _timer = Timer.periodic(Duration(seconds: 5), (timer) {
+      _fetchMessages();
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _messageController.dispose();
+    super.dispose();
   }
 
   Future<void> _fetchMessages() async {
@@ -35,22 +56,42 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  Future<void> _sendMessage() async {
-    if (_messageController.text.trim().isEmpty) return;
+  Future<void> _sendMessage({String? content, String? imageUrl}) async {
+    if ((content == null || content.trim().isEmpty) && imageUrl == null) return;
 
     try {
       final message = await _chatApi.sendMessage(
         chatId: widget.chatId,
-        type: 'text',
-        content: _messageController.text.trim(),
+        type: imageUrl != null ? 'image' : 'text',
+        content: content ?? '',
+        imageUrl: imageUrl,
       );
       setState(() {
         messages.add(message);
-        _messageController.clear();
+        if (content != null) _messageController.clear();
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('메시지 전송에 실패했습니다.')),
+      );
+    }
+  }
+
+  Future<void> _sendImage() async {
+    try {
+      final imageFile = await _imageApi.pickImage();
+      if (imageFile != null) {
+        // 채팅 이미지 업로드 및 URL 얻기
+        final imageUrl = await _imageApi.uploadImage(
+          imageFile,
+          uploadType: 'chat',
+          chatId: widget.chatId,
+        );
+        await _sendMessage(imageUrl: imageUrl); // 이미지 메시지 전송
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
       );
     }
   }
@@ -80,7 +121,9 @@ class _ChatScreenState extends State<ChatScreen> {
                             : Colors.grey[200],
                         borderRadius: BorderRadius.circular(8.0),
                       ),
-                      child: Text(message.content),
+                      child: message.type == 'image' && message.imageUrl != null
+                          ? Image.network(message.imageUrl!) // 이미지 메시지 표시
+                          : Text(message.content),
                     ),
                   ),
                   subtitle: Text(
@@ -96,6 +139,10 @@ class _ChatScreenState extends State<ChatScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: Row(
               children: [
+                IconButton(
+                  icon: Icon(Icons.photo),
+                  onPressed: _sendImage, // 이미지 전송 버튼
+                ),
                 Expanded(
                   child: TextField(
                     controller: _messageController,
@@ -106,7 +153,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
                 IconButton(
                   icon: Icon(Icons.send),
-                  onPressed: _sendMessage,
+                  onPressed: () => _sendMessage(content: _messageController.text),
                 ),
               ],
             ),
@@ -116,3 +163,4 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 }
+
