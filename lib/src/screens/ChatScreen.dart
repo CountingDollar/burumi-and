@@ -25,7 +25,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Timer? _timer;
   final ImagePicker _picker = ImagePicker();
 
-  late int currentUserId; // 현재 사용자 ID
+  late int currentUserId;
 
   @override
   void initState() {
