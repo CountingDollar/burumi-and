@@ -4,6 +4,7 @@ import '../providers/Styles.dart';
 import '../service/JWTapi.dart';
 import '../service/ChatApi.dart';
 import 'ChatScreen.dart';
+import '../Service/ErrandApi.dart';
 
 class ApplyScreen extends StatelessWidget {
   final String summary;
@@ -13,7 +14,8 @@ class ApplyScreen extends StatelessWidget {
   final String destination;
   final String destinationDetail;
   final Map<String, Color> categoryColor;
-  final int ordererId;//추가
+  final int ordererId;
+  final int errandId;
 
   const ApplyScreen(
       {Key? key,
@@ -24,7 +26,8 @@ class ApplyScreen extends StatelessWidget {
         required this.destination,
         required this.destinationDetail,
         required this.categoryColor,
-        required this.ordererId//추가
+        required this.ordererId,
+        required this.errandId,
       })
       : super(key: key);
 
@@ -156,7 +159,7 @@ class ApplyScreen extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                       backgroundColor: buttonBackgroundColor),
                   onPressed: () {
-                    _createChat(context);
+                    _applyAndCreateChat(context);
                     // 지원하기 버튼 눌렀을 때 동작
                   },
                   child: Text(
@@ -171,9 +174,14 @@ class ApplyScreen extends StatelessWidget {
       ),
     );
   }
-  Future<void> _createChat(BuildContext context) async {
+  Future<void> _applyAndCreateChat(BuildContext context) async {
     try {
-      //user1Id 가져오기
+
+      final errandApi = errandsApi();
+      await errandApi.applyForErrand(errandId);
+      print('심부름 지원 성공');
+
+
       final user1Id = await JwtApi().getUser1Id();
       if (user1Id == null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -182,23 +190,19 @@ class ApplyScreen extends StatelessWidget {
         return;
       }
 
-      // 채팅방 생성
       final chatApi = ChatApi();
-      print(user1Id);
-      print(ordererId);
       final chat = await chatApi.createChat(user1Id: user1Id, user2Id: ordererId);
-      print(chat);
-      print(chat.id);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('채팅방이 성공적으로 생성되었습니다!')),
+      print('채팅방 생성 성공: ${chat.id}');
+
+
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => ChatScreen(chatId: chat.id)),
       );
-
-
-      Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen(chatId: chat.id)));
-
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('.')),
+        SnackBar(content: Text('지원 실패: $e')),
       );
     }
   }

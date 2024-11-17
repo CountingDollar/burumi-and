@@ -2,9 +2,9 @@ import 'package:dio/dio.dart';
 import 'package:team_burumi/src/models/ErrandGetModel.dart';
 import 'package:flutter/material.dart';
 import 'package:team_burumi/src/service/JWTapi.dart';
-
+import '../service/ApiService.dart';
 class errandsApi {
-  final Dio _dio = Dio();
+  final Dio _dio = ApiService().dio;
 
   Future<Map<String, dynamic>> fetchPosts({int page = 1, int size = 20}) async {
     try {
@@ -32,6 +32,19 @@ class errandsApi {
       }
     } catch (e) {
       throw Exception('Failed to load posts: $e');
+    }
+  }
+  Future<void> applyForErrand(int errandId) async {
+    try {
+      final response = await _dio.post(
+        'https://api.dev.burumi.kr/v1/errands/$errandId/applicants',
+      );
+
+      if (response.data['code'] != 2000) {
+        throw Exception('심부름 지원 실패: ${response.data['message']}');
+      }
+    } catch (e) {
+      throw Exception('Error applying for errand: $e');
     }
   }
 

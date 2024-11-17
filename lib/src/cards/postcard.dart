@@ -1,25 +1,35 @@
 import 'package:flutter/material.dart';
+import '../models/ErrandGetModel.dart'; // Delivery 클래스 포함
 
-class PostCard extends StatefulWidget {
-  int? number;
+class PostCard extends StatelessWidget {
+  final Delivery delivery; // Delivery 객체 사용
+  final VoidCallback? onTap;
+  final Widget? extraButton; // 추가 버튼
 
-  PostCard({this.number});
+  const PostCard({
+    Key? key,
+    required this.delivery,
+    this.onTap,
+    this.extraButton,
+  }) : super(key: key);
 
-  @override
-  State<PostCard> createState() => _PostCardState();
-}
-
-class _PostCardState extends State<PostCard> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      height: 100,
-      margin: EdgeInsets.all(10),
-      child: Center(
-        child: Text('Post ${widget.number.toString()}'),
-      )
-
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+      child: ListTile(
+        onTap: onTap,
+        title: Text(
+          delivery.summary ?? '제목 없음',
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        subtitle: Text(
+          delivery.destination ?? '목적지 없음',
+          style: const TextStyle(fontSize: 14),
+        ),
+        trailing: extraButton, // 추가 버튼
+      ),
     );
   }
 }
+

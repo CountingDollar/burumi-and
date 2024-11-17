@@ -124,7 +124,8 @@ class PostItem extends StatelessWidget {
                           destination: destination,
                           destinationDetail: destinationDetail,
                           categoryColor: PostListScreen.categoryColors,
-                          ordererId: ordererId,//추가
+                          ordererId: ordererId,
+                          errandId: post.id ?? -1,
                         ),
                       ),
                     );

@@ -35,6 +35,66 @@ class _ChatScreenState extends State<ChatScreen> {
     _startPolling();
   }
 
+  Future<void> _pickAndSendImage() async {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: Icon(Icons.photo_library),
+                title: Text('갤러리에서 선택'),
+                onTap: () async {
+                  Navigator.pop(context);
+                  await _pickImage(ImageSource.gallery);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.camera_alt),
+                title: Text('카메라로 촬영'),
+                onTap: () async {
+                  Navigator.pop(context); // 창 닫기
+                  await _pickImage(ImageSource.camera);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+
+      final XFile? pickedFile = await _picker.pickImage(source: source);
+      if (pickedFile != null) {
+
+        final String imageUrl = await _uploadImage(File(pickedFile.path));
+
+        await _sendMessage(imageUrl: imageUrl);
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('파일이 5mb이상입니다.: $e')),
+      );
+    }
+  }
+
+  Future<String> _uploadImage(File imageFile) async {
+    try {
+      final String imageUrl = await _imageApi.uploadImage(
+        imageFile,
+        uploadType: 'chat',
+        chatId: widget.chatId,
+      );
+      return imageUrl;
+    } catch (e) {
+      throw Exception('이미지 업로드 실패: $e');
+    }
+  }
+
   Future<void> _initializeCurrentUser() async {
 
     if (JwtApi.user1Id == null) {
@@ -99,23 +159,6 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  Future<void> _sendImage() async {
-    try {
-      final imageFile = await _imageApi.pickImage();
-      if (imageFile != null) {
-        final imageUrl = await _imageApi.uploadImage(
-          imageFile,
-          uploadType: 'chat',
-          chatId: widget.chatId,
-        );
-        await _sendMessage(imageUrl: imageUrl); // 이미지 메시지 전송
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString())),
-      );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -167,7 +210,7 @@ class _ChatScreenState extends State<ChatScreen> {
               children: [
                 IconButton(
                   icon: Icon(Icons.photo),
-                  onPressed: _sendImage, // 이미지 전송 버튼
+                  onPressed: _pickAndSendImage,
                 ),
                 Expanded(
                   child: TextField(
