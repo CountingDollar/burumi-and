@@ -31,7 +31,7 @@ Delivery _$DeliveryFromJson(Map<String, dynamic> json) => Delivery(
       details: json['details'] as String?,
       proofImageUrl: json['proofImageUrl'] as String?,
       category_id: (json['category_id'] as num?)?.toInt(),
-      ordererId: (json['ordererId'] as num?)?.toInt(),
+      ordererId: (json['orderer_id'] as num?)?.toInt(),
       messengerId: (json['messengerId'] as num?)?.toInt(),
       status: json['status'] as String?,
       scheduledAt: json['scheduled_at'] == null

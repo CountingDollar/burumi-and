@@ -5,6 +5,8 @@ import 'package:image_picker/image_picker.dart';
 import '../models/ChatModels.dart';
 import '../service/ChatApi.dart';
 import '../service/ImageApi.dart';
+import '../service/JWTapi.dart';
+
 
 class ChatScreen extends StatefulWidget {
   final int chatId;
@@ -23,11 +25,30 @@ class _ChatScreenState extends State<ChatScreen> {
   Timer? _timer;
   final ImagePicker _picker = ImagePicker();
 
+  late int currentUserId; // 현재 사용자 ID
+
   @override
   void initState() {
     super.initState();
+    _initializeCurrentUser();
     _fetchMessages();
     _startPolling();
+  }
+
+  Future<void> _initializeCurrentUser() async {
+
+    if (JwtApi.user1Id == null) {
+      await JwtApi().verifyTokenAndSaveUserId();
+    }
+    setState(() {
+      currentUserId = JwtApi.user1Id ?? -1;
+    });
+
+    if (currentUserId == -1) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('사용자 ID를 불러오는 데 실패했습니다. 다시 시도해주세요.')),
+      );
+    }
   }
 
   void _startPolling() {
@@ -47,7 +68,8 @@ class _ChatScreenState extends State<ChatScreen> {
     try {
       final chatDetails = await _chatApi.fetchChatDetails(widget.chatId);
       setState(() {
-        messages = chatDetails.messages ?? [];
+        messages = (chatDetails.messages ?? [])
+          ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -81,7 +103,6 @@ class _ChatScreenState extends State<ChatScreen> {
     try {
       final imageFile = await _imageApi.pickImage();
       if (imageFile != null) {
-        // 채팅 이미지 업로드 및 URL 얻기
         final imageUrl = await _imageApi.uploadImage(
           imageFile,
           uploadType: 'chat',
@@ -108,17 +129,17 @@ class _ChatScreenState extends State<ChatScreen> {
               itemCount: messages.length,
               itemBuilder: (context, index) {
                 final message = messages[messages.length - 1 - index];
+                final bool isMyMessage = message.senderId == currentUserId;
+
                 return ListTile(
                   title: Align(
-                    alignment: message.senderId == widget.chatId
+                    alignment: isMyMessage
                         ? Alignment.centerRight
                         : Alignment.centerLeft,
                     child: Container(
                       padding: EdgeInsets.all(8.0),
                       decoration: BoxDecoration(
-                        color: message.senderId == widget.chatId
-                            ? Colors.blue[100]
-                            : Colors.grey[200],
+                        color: isMyMessage ? Colors.blue[100] : Colors.grey[200],
                         borderRadius: BorderRadius.circular(8.0),
                       ),
                       child: message.type == 'image' && message.imageUrl != null
@@ -126,9 +147,14 @@ class _ChatScreenState extends State<ChatScreen> {
                           : Text(message.content),
                     ),
                   ),
-                  subtitle: Text(
-                    message.createdAt.toString(),
-                    style: TextStyle(fontSize: 12),
+                  subtitle: Align(
+                    alignment: isMyMessage
+                        ? Alignment.centerRight
+                        : Alignment.centerLeft,
+                    child: Text(
+                      message.createdAt.toString(),
+                      style: TextStyle(fontSize: 12),
+                    ),
                   ),
                 );
               },
@@ -153,7 +179,8 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
                 IconButton(
                   icon: Icon(Icons.send),
-                  onPressed: () => _sendMessage(content: _messageController.text),
+                  onPressed: () =>
+                      _sendMessage(content: _messageController.text),
                 ),
               ],
             ),
@@ -163,4 +190,3 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 }
-

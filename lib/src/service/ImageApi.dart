@@ -67,7 +67,7 @@ class ImageApi {
         ),
       );
 
-      if (response.statusCode == 200) {
+      if (response.data['code'] == 2000) {
         return response.data['result']['image_url'] ?? '이미지 업로드 성공';
       } else {
         throw Exception('Failed to upload image');

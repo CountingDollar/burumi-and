@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:team_burumi/src/screens/activity.dart';
-import 'package:team_burumi/src/screens/chat_screen.dart';
+import 'package:team_burumi/src/screens/ChatListScreen.dart';
 import 'package:team_burumi/src/screens/MyPageScreen.dart';
 import 'package:team_burumi/src/providers/AppLabels.dart';
 import '../providers/Styles.dart';
@@ -21,7 +21,7 @@ class _HomeState extends State<Home> {
   List<Widget> pages = [
     PostListScreen(),
     Activity(),
-    ChatScreen(),
+    ChatListScreen(),
     MyPage(),
   ];
 

@@ -3,6 +3,7 @@ import '../models/ChatModels.dart';
 import '../service/ApiService.dart';
 
 class ChatApi {
+
   final Dio _dio = ApiService().dio;
   final String baseUrl = "https://api.dev.burumi.kr/v1/chats";
 
@@ -20,7 +21,7 @@ class ChatApi {
       'size': size,
     });
 
-    if (response.statusCode == 200) {
+    if (response.data['code'] == 2000) {
       final data = response.data['result']['chats'] as List;
       return data.map((chat) => ChatModels.fromJson(chat)).toList();
     } else {
@@ -49,7 +50,7 @@ class ChatApi {
       'user2_id': user2Id,
     });
 
-    if (response.statusCode == 200) {
+    if (response.data['code'] == 2000) {
       return ChatModels.fromJson(response.data['result']);
     } else {
       throw Exception('Failed to create chat');
@@ -69,7 +70,7 @@ class ChatApi {
       if (imageUrl != null) 'image_url': imageUrl,
     });
 
-    if (response.statusCode == 200) {
+    if (response.data['code'] == 2000) {
       return MessageModel.fromJson(response.data['result']);
     } else {
       throw Exception('Failed to send message');

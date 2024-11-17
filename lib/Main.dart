@@ -5,23 +5,33 @@ import 'package:team_burumi/src/screens/ErrandPostScreen.dart';
 import 'package:team_burumi/src/screens/HomeScreen.dart';
 import 'package:team_burumi/src/screens/LoginScreen.dart';
 import 'package:team_burumi/src/screens/SignUpScreen.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:team_burumi/src/screens/activity.dart';
 
-import 'src/screens/chat_screen.dart';
+import 'src/screens/ChatListScreen.dart';
 
 
 
 Future<void> main() async {
-  // WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
+  await _clearPreferencesOnStart();
   await dotenv.load();
+  print('앱 시작');
+
   runApp(const MyApp());
+}
+Future<void> _clearPreferencesOnStart() async {
+  print('SharedPreferences 초기화');
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.clear(); //
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
+  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   @override
   Widget build(BuildContext context) {
@@ -35,9 +45,11 @@ class MyApp extends StatelessWidget {
       child:MaterialApp(
       title: 'Flutter Demo',
         locale: Locale('ko', 'KR'),
-      theme: ThemeData(
+
+        theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
+        navigatorKey: navigatorKey,
       initialRoute: '/home',
       routes: {
         '/home':(context)=> Home(),
@@ -47,7 +59,7 @@ class MyApp extends StatelessWidget {
         '/activity': (context) =>  Activity(),
         '/errand': (context) =>  ErrandScreen(),
         '/mypage':(context)=>MyPage(),
-        '/chat':(context)=> ChatScreen(),
+        '/chat':(context)=> ChatListScreen(),
 
       },
       ),

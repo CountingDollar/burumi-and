@@ -2,16 +2,15 @@ import 'package:team_burumi/src/models/ChatModel.dart';
 import 'package:flutter/material.dart';
 import 'package:team_burumi/src/service/ApiService.dart';
 import 'package:team_burumi/src/service/JwtApi.dart';
-
-
-class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key});
+import 'ChatScreen.dart';
+class ChatListScreen extends StatefulWidget {
+  const ChatListScreen({super.key});
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
 }
 
-class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateMixin {
+class _ChatScreenState extends State<ChatListScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   bool isUserIdLoaded = false;
 
@@ -19,16 +18,28 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    _loadUserId();
+    _initializeScreen();
   }
 
-  Future<void> _loadUserId() async {
-    if (JwtApi.user1Id == null) {
-      await JwtApi().verifyTokenAndSaveUserId();
+  Future<void> _initializeScreen() async {
+    try {
+      // Step 1: 토큰 검증 및 사용자 ID 로드
+      if (JwtApi.user1Id == null) {
+        await JwtApi().verifyTokenAndSaveUserId();
+      }
+
+      // Step 2: ApiService 강제 호출로 초기화 트리거
+      final apiService = ApiService();
+      print('ApiService 강제 호출 완료');
+
+      // 사용자 ID 로드 상태 업데이트
+      setState(() {
+        isUserIdLoaded = true;
+      });
+    } catch (e) {
+      print('초기화 실패: $e');
+      Navigator.pushReplacementNamed(context, '/login');
     }
-    setState(() {
-      isUserIdLoaded = true;
-    });
   }
 
   @override
@@ -226,7 +237,12 @@ class _ChatListViewState extends State<ChatListView> {
               trailing: Text("오후 3:45",
                   style: TextStyle(fontSize: 12, color: Colors.grey[500])),
               onTap: () {
-                // Navigate to chat room (detailed chat view)
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                    builder: (context) => ChatScreen(chatId: chatRoom.id),
+                    ),
+                );
               },
             ),
           ),
@@ -235,5 +251,6 @@ class _ChatListViewState extends State<ChatListView> {
     );
   }
 }
+
 
 

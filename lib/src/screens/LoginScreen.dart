@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:team_burumi/src/service/LogInApi.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../providers/Styles.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -22,7 +20,7 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pushNamed(context, '/home');
           },
@@ -57,7 +55,7 @@ class _LoginPageState extends State<LoginPage> {
                           });
                         },
                       ),
-                      title: Text('아이디 저장'),
+                      title: const Text('아이디 저장'),
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -109,9 +107,9 @@ class _LoginPageState extends State<LoginPage> {
       autofocus: false,
       validator: (val) {
         if (val!.isEmpty) {
-          return 'The input is empty.';
+          return '이메일을 입력하세요.';
         } else if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(val)) {
-          return 'Please enter a valid email';
+          return '유효한 이메일 주소를 입력하세요.';
         } else {
           return null;
         }
@@ -134,7 +132,7 @@ class _LoginPageState extends State<LoginPage> {
       autofocus: false,
       validator: (val) {
         if (val!.isEmpty) {
-          return 'The input is empty.';
+          return '비밀번호를 입력하세요.';
         } else {
           return null;
         }
@@ -153,45 +151,45 @@ class _LoginPageState extends State<LoginPage> {
   ElevatedButton loginButton(BuildContext context) {
     return ElevatedButton(
       onPressed: () async {
-        String email = _emailController.text;
-        String password = _pwdController.text;
+        if (!_key.currentState!.validate()) return;
+
+        String email = _emailController.text.trim();
+        String password = _pwdController.text.trim();
 
         final authService = ApiLogin();
-        bool isSuccess = await authService.login(email, password);
+        final response = await authService.login(email, password);
 
-        if (isSuccess) {
+        if (response['code'] == 2000) {
           if (_isChecked) {
-            await _storeCredentials(email, password); // 로그인 성공시 아이디및 이메일 저장
+            await _storeCredentials(email, password); // 아이디 및 이메일 저장
           }
           Navigator.pushNamed(context, '/home');
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('로그인에 실패했습니다. 다시 시도하세요.'),
+              content: Text(response['detail']['message'] ?? '로그인에 실패했습니다. 다시 시도하세요.'),
               backgroundColor: Colors.red,
-              duration: Duration(seconds: 3),
+              duration: const Duration(seconds: 3),
             ),
           );
         }
       },
       style: ElevatedButton.styleFrom(
-          minimumSize: Size(200, 50),
-          backgroundColor: buttonBackgroundColor),
-      child: Container(
-        padding: const EdgeInsets.all(15),
-        child: const Text(
-          "로그인",
-          style: TextStyle(fontSize: 18, color: Colors.white),
-        ),
+          minimumSize: const Size(200, 50), backgroundColor: Colors.blue),
+      child: const Text(
+        "로그인",
+        style: TextStyle(fontSize: 18, color: Colors.white),
       ),
     );
   }
-
 
   Future<void> _storeCredentials(String email, String password) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('saved_email', email);
     await prefs.setString('saved_password', password);
-    }
+    print('이메일 저장: $email');
+    print('비밀번호 저장: $password');
   }
+}
+
 

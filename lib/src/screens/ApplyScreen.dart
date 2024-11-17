@@ -184,7 +184,11 @@ class ApplyScreen extends StatelessWidget {
 
       // 채팅방 생성
       final chatApi = ChatApi();
+      print(user1Id);
+      print(ordererId);
       final chat = await chatApi.createChat(user1Id: user1Id, user2Id: ordererId);
+      print(chat);
+      print(chat.id);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('채팅방이 성공적으로 생성되었습니다!')),
       );
@@ -198,7 +202,6 @@ class ApplyScreen extends StatelessWidget {
       );
     }
   }
-
 }
 
 
