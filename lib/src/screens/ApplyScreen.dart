@@ -191,7 +191,7 @@ class ApplyScreen extends StatelessWidget {
       }
 
       final chatApi = ChatApi();
-      final chat = await chatApi.createChat(user1Id: user1Id, user2Id: ordererId);
+      final chat = await chatApi.createChat(user1Id: user1Id, user2Id: ordererId, errandId: errandId);
       print('채팅방 생성 성공: ${chat.id}');
 
 

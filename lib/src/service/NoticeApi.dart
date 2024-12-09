@@ -31,7 +31,7 @@ class NoticeApi {
         ApiResponse apiResponse = ApiResponse.fromJson(response.data);
 
         if (apiResponse.result == null) {
-          throw Exception('result 값이 null입니다.');
+          throw Exception('result 값이 null입니다..');
         }
 
         posts = apiResponse.result!.posts; // result가 null이 아님을 확인 후 접근

@@ -25,7 +25,7 @@ class AuthService {
           return true;
         } else {
           // 서버 응답 코드가 2000이 아닌 경우
-          print('유저생성.서버 응답 오류: ${apiResponse.message}');
+          print('유저생성.서버 응답 오류.: ${apiResponse.message}');
           return false;
         }
       } else {

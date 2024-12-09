@@ -10,7 +10,7 @@
     Future<void> saveToken(String token) async {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('jwt_token', token);
-      print('토큰저장 완료:$token');
+      print('토큰저장 완료.:$token');
     }
 
     Future<String?> getToken() async {
@@ -21,6 +21,7 @@
     Future<void> removeToken() async {
       final prefs = await SharedPreferences.getInstance();
       bool result = await prefs.remove('jwt_token');
+      await prefs.clear();
       user1Id = null;
       print(result ? '토큰 삭제 성공' : '토큰 삭제 실패');
     }
@@ -91,6 +92,11 @@
     }
 
     Future<void> verifyTokenAndSaveUserId() async {
+      if (user1Id != null) {
+        print('user1Id 이미 초기화됨: $user1Id');
+        return;
+      }
+
       try {
         final token = await getToken();
         if (token == null) {

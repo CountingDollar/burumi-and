@@ -36,7 +36,7 @@ class _LoginPageState extends State<LoginPage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Image.asset(
-                    'image/logo.png',
+                    'image/Group 27.png',
                     width: 250,
                     height: 250,
                   ),
@@ -160,8 +160,15 @@ class _LoginPageState extends State<LoginPage> {
         final response = await authService.login(email, password);
 
         if (response['code'] == 2000) {
+          await _storeCredentials(email, password);
           if (_isChecked) {
-            await _storeCredentials(email, password); // 아이디 및 이메일 저장
+            await _storeCredentials(email, password, useAlternateKeys: true);
+            print('아이디 및 비밀번호 저장');
+          } else {
+            print('아이디 및 비밀번호 저장2');
+            final prefs = await SharedPreferences.getInstance();
+            await prefs.remove('saved_email2');
+            await prefs.remove('saved_password2');
           }
           Navigator.pushNamed(context, '/home');
         } else {
@@ -183,10 +190,15 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Future<void> _storeCredentials(String email, String password) async {
+  Future<void> _storeCredentials(String email, String password, {bool useAlternateKeys = false}) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('saved_email', email);
-    await prefs.setString('saved_password', password);
+    if (useAlternateKeys) {
+      await prefs.setString('saved_email2', email);
+      await prefs.setString('saved_password2', password);
+    } else {
+      await prefs.setString('saved_email', email);
+      await prefs.setString('saved_password', password);
+    }
     print('이메일 저장: $email');
     print('비밀번호 저장: $password');
   }

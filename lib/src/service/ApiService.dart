@@ -11,7 +11,7 @@ class ApiService {
 
   ApiService() {
     print('ApiService 생성자 호출됨');
-    print('Dio 인스턴스 생성 중...');
+    print('Dio 인스턴스 생성 중....');
     _dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
         print('API 요청 시작: ${options.uri}');

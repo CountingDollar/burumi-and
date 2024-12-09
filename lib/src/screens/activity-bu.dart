@@ -1,18 +1,44 @@
 import 'package:flutter/material.dart';
 import '../models/ErrandGetModel.dart';
-import '../service/ErrandApi.dart';
+import '../service/ApiService.dart';
 import '../service/JWTapi.dart';
 
 class ActivityBu extends StatelessWidget {
   const ActivityBu({Key? key}) : super(key: key);
 
-  Future<List<Delivery>> fetchMyCreatedErrands() async {
+
+  Future<List<Delivery>> fetchMyCreatedErrands({int page = 1, int size = 20}) async {
     final userId = await JwtApi().getUser1Id();
     if (userId == null) throw Exception('사용자 ID를 확인할 수 없습니다.');
-    final errandsData = await errandsApi().fetchPosts();
-    final errands = errandsData['errands'] as List<Delivery>;
-    return errands.where((e) => e.ordererId == userId).toList();
+
+    final dio = ApiService().dio;
+    final url = 'https://api.dev.burumi.kr/v1/users/$userId/errands';
+
+    try {
+      final response = await dio.get(
+        url,
+        queryParameters: {
+          'filter': 'orderer',
+          'page': page,
+          'size': size,
+        },
+      );
+
+      // 성공 코드 확인
+      if (response.data['code'] != 2000) {
+        throw Exception('심부름 데이터를 불러오는 데 실패했습니다: ${response.data}');
+      }
+
+      // 응답 데이터 파싱
+      final rows = response.data['result']['rows'] as List<dynamic>;
+
+      // Delivery 모델로 매핑
+      return rows.map((row) => Delivery.fromJson(row)).toList();
+    } catch (e) {
+      throw Exception('심부름 데이터를 가져오는 중 오류 발생: $e');
+    }
   }
+
 
   @override
   Widget build(BuildContext context) {

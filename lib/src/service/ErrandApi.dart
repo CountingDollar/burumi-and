@@ -3,6 +3,8 @@ import 'package:team_burumi/src/models/ErrandGetModel.dart';
 import 'package:flutter/material.dart';
 import 'package:team_burumi/src/service/JWTapi.dart';
 import '../service/ApiService.dart';
+
+
 class errandsApi {
   final Dio _dio = ApiService().dio;
 
@@ -19,7 +21,7 @@ class errandsApi {
       print('Status code: ${response.statusCode}');
       print('Response body: ${response.data}');
 
-      if (response.statusCode == 200) {
+      if (response.data['code'] == 2000) {
         var result = response.data['result']['errands'] as List<dynamic>;
         var count = response.data['result']['count'];
         return {
@@ -34,6 +36,36 @@ class errandsApi {
       throw Exception('Failed to load posts: $e');
     }
   }
+
+  /*
+  Future<Map<String, dynamic>> fetchPosts({int page = 1, int size = 20}) async {
+    try {
+      final response = await _dio.get(
+        'https://api.dev.burumi.kr/v1/errands',
+        queryParameters: {
+          'page': page,
+          'size': size,
+        },
+      );
+
+      if (response.data['code'] == 2000) {
+        final result = response.data['result']['errands'] as List<dynamic>;
+        final errands = result.map((item) => Delivery.fromJson(item)).toList();
+        final count = response.data['result']['count'];
+        return {'errands': errands, 'count': count};
+      } else {
+        throw Exception(
+            'Failed to load posts: ${response.statusCode} ${response.statusMessage}');
+      }
+    } catch (e) {
+      throw Exception('Failed to load posts: $e');
+    }
+  }
+*/
+
+
+
+
   Future<void> applyForErrand(int errandId) async {
     try {
       final response = await _dio.post(
@@ -41,7 +73,7 @@ class errandsApi {
       );
 
       if (response.data['code'] != 2000) {
-        throw Exception('심부름 지원 실패: ${response.data['message']}');
+        throw Exception('심부름 지원 실패.: ${response.data['message']}');
       }
     } catch (e) {
       throw Exception('Error applying for errand: $e');
@@ -83,13 +115,14 @@ class errandsApi {
         ),
       );
 
-      if (response.statusCode == 200) {
+      if (response.data['code'] == 2000) {
         print('심부름 생성 성공');
         print('생성한 심부름 : ${response.data}');
         Navigator.pop(context);
       } else {
         print(
             '심부름을 생성하지 못했습니다: ${response.statusMessage}');
+
       }
     } catch (e) {
       print('심부름 생성 오류: $e');

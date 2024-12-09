@@ -45,7 +45,7 @@ class addressApi{
                 : addressName;
           }
         } else {
-          print('API 호출 실패: ${response.statusCode}');
+          print('API 호출 실패.: ${response.statusCode}');
         }
       }catch (e) {
         print('주소 찾기 오류 발생: $e');

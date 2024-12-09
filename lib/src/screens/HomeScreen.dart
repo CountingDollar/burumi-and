@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:team_burumi/src/screens/activity.dart';
 import 'package:team_burumi/src/screens/ChatListScreen.dart';
 import 'package:team_burumi/src/screens/MyPageScreen.dart';
@@ -31,7 +32,7 @@ class _HomeState extends State<Home> {
     return Scaffold(
       appBar: AppBar(
         leading: Image.asset(
-          'image/logo.png',
+          'image/logo1.png',
           width: 35,
           height: 35,
         ),
@@ -45,7 +46,8 @@ class _HomeState extends State<Home> {
                   Navigator.pushNamed(context, '/alarm');
                 }
               },
-              icon: Icon(Icons.notifications, color: Colors.black)),
+              icon: SvgPicture.asset('image/alert.svg',),
+            iconSize: 25,),
         ],
       ),
       body: IndexedStack(
@@ -104,25 +106,25 @@ class _HomeState extends State<Home> {
       items: [
         BottomNavigationBarItem(
           icon: Container(
-            child: Icon(Icons.home),
+            child: SvgPicture.asset('image/home.svg',height: 25,width: 25,),
           ),
           label: AppLabels.home,
         ),
         BottomNavigationBarItem(
           icon: Container(
-            child: Icon(Icons.text_snippet),
+            child: SvgPicture.asset('image/active.svg',height: 25,width: 25,),
           ),
           label: AppLabels.activity,
         ),
         BottomNavigationBarItem(
           icon: Container(
-            child: Icon(Icons.chat_bubble_outline),
+            child: SvgPicture.asset('image/chat.svg',height: 25,width: 25,),
           ),
           label: AppLabels.chat,
         ),
         BottomNavigationBarItem(
           icon: Container(
-            child: Icon(Icons.person_outline),
+            child: SvgPicture.asset('image/mypage.svg',height: 25,width: 25,),
           ),
           label: AppLabels.info,
         ),

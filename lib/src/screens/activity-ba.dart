@@ -24,7 +24,7 @@ class ActivityBA extends StatelessWidget {
         } else if (snapshot.hasError) {
           return Center(child: Text('오류 발생: ${snapshot.error}'));
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Center(child: Text('지원한 게시글이 없습니다.'));
+          return const Center(child: Text('지원한 게시글이 없습니다..'));
         } else {
           final errands = snapshot.data!;
           return ListView.builder(

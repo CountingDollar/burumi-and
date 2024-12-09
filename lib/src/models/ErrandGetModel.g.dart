@@ -23,20 +23,23 @@ Map<String, dynamic> _$ErrandGetModelToJson(ErrandGetModel instance) =>
     };
 
 Delivery _$DeliveryFromJson(Map<String, dynamic> json) => Delivery(
-      id: (json['_id'] as num?)?.toInt(),
-      destination: json['destination'] as String?,
-      destinationDetail: json['destination_detail'] as String?,
-      cost: json['cost'] as String?,
-      summary: json['summary'] as String?,
-      details: json['details'] as String?,
+      id: (json['_id'] as num?)?.toInt() ?? -1,
+      destination: json['destination'] as String? ?? "Unknown",
+      destinationDetail: json['destinationDetail'] as String? ?? "Unknown",
+      cost: json['cost'] as String? ?? "0",
+      summary: json['summary'] as String? ?? "제목 없음",
+      details: json['details'] as String? ?? "No details provided",
       proofImageUrl: json['proofImageUrl'] as String?,
-      category_id: (json['category_id'] as num?)?.toInt(),
-      ordererId: (json['orderer_id'] as num?)?.toInt(),
+      category_id: (json['category_id'] as num?)?.toInt() ?? 0,
+      ordererId: (json['ordererId'] as num?)?.toInt(),
       messengerId: (json['messengerId'] as num?)?.toInt(),
-      status: json['status'] as String?,
-      scheduledAt: json['scheduled_at'] == null
+      status: json['status'] as String? ?? "Unknown",
+      scheduledAt: json['scheduledAt'] == null
           ? null
-          : DateTime.parse(json['scheduled_at'] as String),
+          : DateTime.parse(json['scheduledAt'] as String),
+      createdAt: json['createdAt'] == null
+          ? null
+          : DateTime.parse(json['createdAt'] as String),
       startedAt: json['startedAt'] == null
           ? null
           : DateTime.parse(json['startedAt'] as String),
@@ -52,9 +55,6 @@ Delivery _$DeliveryFromJson(Map<String, dynamic> json) => Delivery(
       updatedAt: json['updatedAt'] == null
           ? null
           : DateTime.parse(json['updatedAt'] as String),
-      createdAt: json['createdAt'] == null
-          ? null
-          : DateTime.parse(json['createdAt'] as String),
     );
 
 Map<String, dynamic> _$DeliveryToJson(Delivery instance) => <String, dynamic>{
@@ -69,11 +69,11 @@ Map<String, dynamic> _$DeliveryToJson(Delivery instance) => <String, dynamic>{
       'ordererId': instance.ordererId,
       'messengerId': instance.messengerId,
       'status': instance.status,
-      'scheduledAt': instance.scheduledAt?.toIso8601String(),
+      'scheduledAt': instance.scheduledAt.toIso8601String(),
       'startedAt': instance.startedAt?.toIso8601String(),
       'completedAt': instance.completedAt?.toIso8601String(),
       'closedAt': instance.closedAt?.toIso8601String(),
       'deletedAt': instance.deletedAt?.toIso8601String(),
       'updatedAt': instance.updatedAt?.toIso8601String(),
-      'createdAt': instance.createdAt?.toIso8601String(),
+      'createdAt': instance.createdAt.toIso8601String(),
     };

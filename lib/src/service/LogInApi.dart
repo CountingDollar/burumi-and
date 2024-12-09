@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'JWTapi.dart';
 
 class ApiLogin {
   final Dio _dio = Dio();
@@ -18,13 +19,13 @@ class ApiLogin {
 
         
         if (result == null || result['access_token'] == null) {
-          throw Exception('로그인 응답에 access_token이 없습니다.');
+          throw Exception('로그인 응답에 access_token이 없습니다..');
         }
 
 
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('jwt_token', result['access_token']);
-
+        await JwtApi().verifyTokenAndSaveUserId();
         return {
           'code': 2000,
           'message': 'login.success',

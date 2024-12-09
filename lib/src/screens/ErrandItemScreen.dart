@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:team_burumi/src/models/ErrandGetModel.dart';
 import 'package:team_burumi/src/screens/ApplyScreen.dart';
 import 'package:intl/intl.dart';
@@ -80,8 +81,9 @@ class PostItem extends StatelessWidget {
               Align(
                 alignment: Alignment.topRight,
                 child: Text(
-                  "${cost} 원",
-                  style: TextStyle(color: Colors.red),
+                  "P ${cost}",
+                  style: TextStyle(fontWeight: FontWeight.bold,color: Colors.red,),
+
                 ),
               ),
               buildStaticCategoryButton(categoryName),
@@ -147,7 +149,7 @@ class PostItem extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.send, color: Colors.blue, size: 15),
+                        SvgPicture.asset("image/air.svg",height: 15,width: 15,),
                         // 종이비행기 아이콘 추가 및 크기 조절
                         SizedBox(width: 5),
                         // 아이콘과 텍스트 사이의 간격 최소화

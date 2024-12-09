@@ -18,14 +18,17 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await _clearPreferencesOnStart();
   await dotenv.load();
-  print('앱 시작');
+  print('앱 시작.');
 
   runApp(const MyApp());
 }
 Future<void> _clearPreferencesOnStart() async {
   print('SharedPreferences 초기화');
   final prefs = await SharedPreferences.getInstance();
-  await prefs.clear(); //
+  await prefs.remove('jwt_token');
+  await prefs.remove('saved_email');
+  await prefs.remove('saved_password');
+
 }
 
 class MyApp extends StatelessWidget {
